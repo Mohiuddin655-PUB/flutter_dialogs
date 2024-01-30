@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_dialogs/dialogs.dart';
+import 'package:flutter_androssy_dialogs/dialogs.dart';
 
 void main() {
   runApp(const MyApp());
