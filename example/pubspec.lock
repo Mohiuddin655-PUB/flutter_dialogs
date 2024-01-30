@@ -62,7 +62,7 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_dialogs:
+  flutter_androssy_dialogs:
     dependency: "direct main"
     description:
       path: ".."

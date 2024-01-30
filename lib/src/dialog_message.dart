@@ -78,10 +78,16 @@ class _MessageDialogState extends State<_MessageDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
-      actions: [_button(context)],
-      content: _subtitle(context),
-      title: _title(context),
+    return BackdropFilter(
+      filter: ImageFilter.blur(
+        sigmaX: 10,
+        sigmaY: 10,
+      ),
+      child: CupertinoAlertDialog(
+        actions: [_button(context)],
+        content: _subtitle(context),
+        title: _title(context),
+      ),
     );
   }
 }

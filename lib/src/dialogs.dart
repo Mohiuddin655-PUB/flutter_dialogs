@@ -35,15 +35,16 @@ class Dialogs {
     BuildContext context, {
     Key? key,
     String? title,
-    String? message,
+    String? text,
     String? hint,
     EditableDialogConfig config = const EditableDialogConfig(),
   }) {
     return showCupertinoDialog(
       context: context,
+      barrierDismissible: true,
       builder: (_) => _EditableDialog(
         key: key,
-        config: config.copy(title: title, message: message, hint: hint),
+        config: config.copy(title: title, text: text, hint: hint),
       ),
     ).onError((_, __) => null).then((_) => _ is String ? _ : "");
   }
@@ -51,14 +52,13 @@ class Dialogs {
   static Future<bool> showLoading(
     BuildContext context, {
     Key? key,
-    ValueNotifier<double>? progress,
     LoadingDialogConfig config = const LoadingDialogConfig(),
   }) {
     return showCupertinoDialog(
       context: context,
       builder: (_) => _LoadingDialog(
         key: key,
-        config: config.copy(progress: progress),
+        config: config,
       ),
     ).onError((_, __) => null).then((_) => _ is bool ? _ : false);
   }
@@ -72,10 +72,17 @@ class Dialogs {
   }) {
     return showCupertinoDialog(
       context: context,
+      barrierDismissible: true,
       builder: (_) => _MessageDialog(
         key: key,
         config: config.copy(title: title, message: message),
       ),
     ).onError((_, __) => null).then((_) => _ is bool ? _ : false);
+  }
+
+  static void dismiss(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
   }
 }

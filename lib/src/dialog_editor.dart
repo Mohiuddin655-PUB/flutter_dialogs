@@ -11,8 +11,6 @@ class EditableDialogConfig extends DialogConfig {
   const EditableDialogConfig({
     super.title,
     super.titleStyle,
-    super.message,
-    super.messageStyle,
     this.controller,
     this.hint,
     this.hintStyle,
@@ -32,8 +30,6 @@ class EditableDialogConfig extends DialogConfig {
     TextStyle? buttonTextStyle,
     String? title,
     TextStyle? titleStyle,
-    String? message,
-    TextStyle? messageStyle,
     String? hint,
     TextStyle? hintStyle,
     String? text,
@@ -44,8 +40,6 @@ class EditableDialogConfig extends DialogConfig {
       controller: controller ?? this.controller,
       buttonText: buttonText ?? positiveButtonText,
       buttonTextStyle: buttonTextStyle ?? positiveButtonTextStyle,
-      message: message ?? this.message,
-      messageStyle: messageStyle ?? this.messageStyle,
       title: title ?? this.title,
       titleStyle: titleStyle ?? this.titleStyle,
       hint: hint ?? this.hint,
@@ -76,7 +70,7 @@ class _EditableDialogState extends State<_EditableDialog> {
   @override
   void initState() {
     _editor = config.controller ?? TextEditingController();
-    _editor.text = config.message ?? "";
+    _editor.text = config.text ?? "";
     super.initState();
   }
 
@@ -104,28 +98,27 @@ class _EditableDialogState extends State<_EditableDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
-      actions: [_positiveButton(context)],
-      title: _title(context),
-      content: Material(
-        color: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 12,
-          ),
+    return BackdropFilter(
+      filter: ImageFilter.blur(
+        sigmaX: 10,
+        sigmaY: 10,
+      ),
+      child: CupertinoAlertDialog(
+        actions: [_positiveButton(context)],
+        title: _title(context),
+        content: Material(
+          color: Colors.transparent,
           child: TextField(
             controller: _editor,
+            autofocus: true,
             textAlign: config.textAlign ?? TextAlign.center,
-            style: config.style ??
-                const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+            style: config.style,
             minLines: 1,
-            maxLines: 3,
+            maxLines: 10,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.only(top: 16),
+              isDense: false,
+              isCollapsed: true,
               hintText: config.hint ?? "Type here...",
               hintStyle: config.hintStyle,
               border: InputBorder.none,

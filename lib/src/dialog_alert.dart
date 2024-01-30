@@ -92,10 +92,16 @@ class _AlertDialogState extends State<_AlertDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
-      actions: [_negativeButton(context), _positiveButton(context)],
-      content: _subtitle(context),
-      title: _title(context),
+    return BackdropFilter(
+      filter: ImageFilter.blur(
+        sigmaX: 10,
+        sigmaY: 10,
+      ),
+      child: CupertinoAlertDialog(
+        actions: [_negativeButton(context), _positiveButton(context)],
+        content: _subtitle(context),
+        title: _title(context),
+      ),
     );
   }
 }
