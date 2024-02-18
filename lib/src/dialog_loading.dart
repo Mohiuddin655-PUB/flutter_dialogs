@@ -1,18 +1,22 @@
 part of 'dialogs.dart';
 
-typedef OnLoadingProgressBuilder = Widget Function(
+typedef CustomLoadingDialogBuilder = Widget Function(
   BuildContext context,
-  double value,
 );
 
 class LoadingDialogConfig extends DialogConfig {
-  const LoadingDialogConfig();
+  final Widget? loader;
+
+  const LoadingDialogConfig({
+    super.material,
+    this.loader,
+  });
 }
 
-class _LoadingDialog extends StatelessWidget {
+class LoadingDialog extends StatelessWidget {
   final LoadingDialogConfig config;
 
-  const _LoadingDialog({
+  const LoadingDialog({
     super.key,
     required this.config,
   });
@@ -41,6 +45,9 @@ class _LoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (config.loader != null) {
+      return config.loader!;
+    }
     return BackdropFilter(
       filter: ImageFilter.blur(
         sigmaX: 10,

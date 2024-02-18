@@ -3,61 +3,31 @@ import 'package:flutter/material.dart';
 import 'dialogs.dart';
 
 extension DialogsHelper on BuildContext {
-  Future<bool> showAlert({
-    Key? key,
-    String? title,
-    String? message,
-    AlertDialogConfig config = const AlertDialogConfig(),
-  }) {
-    return Dialogs.showAlert(
-      this,
-      key: key,
-      title: title,
-      message: message,
-      config: config,
-    );
+  Future<bool> showAlert({String? title, String? message}) {
+    return Dialogs.i.alert(this, title: title, message: message);
   }
 
-  Future<String> showEditor({
-    Key? key,
-    String? title,
-    String? text,
-    String? hint,
-    EditableDialogConfig config = const EditableDialogConfig(),
-  }) {
-    return Dialogs.showEditor(
-      this,
-      key: key,
-      title: title,
-      text: text,
-      hint: hint,
-      config: config,
-    );
+  Future<String> showEditor({String? title, String? text, String? hint}) {
+    return Dialogs.i.editor(this, title: title, text: text, hint: hint);
   }
 
-  Future<bool> showLoading({
-    Key? key,
-    LoadingDialogConfig config = const LoadingDialogConfig(),
-  }) {
-    return Dialogs.showLoading(
-      this,
-      key: key,
-      config: config,
-    );
+  Future<bool> showLoader([bool status = true]) {
+    return Dialogs.i.loader(this, status: status);
   }
 
-  Future<bool> showMessage(
-    String? message, {
-    String? title,
-    Key? key,
-    MessageDialogConfig config = const MessageDialogConfig(),
-  }) {
-    return Dialogs.showMessage(
-      this,
-      message,
-      key: key,
-      title: title,
-      config: config,
-    );
+  Future<bool> showMessage(String? message, {String? title}) {
+    return Dialogs.i.message(this, message, title: title);
+  }
+
+  void showSnackBar(String message) {
+    Dialogs.i.snackBar(this, message);
+  }
+
+  void showErrorSnackBar(String error) {
+    Dialogs.i.snackBarError(this, error);
+  }
+
+  void showWarningSnackBar(String message) {
+    Dialogs.i.snackBarWarning(this, message);
   }
 }

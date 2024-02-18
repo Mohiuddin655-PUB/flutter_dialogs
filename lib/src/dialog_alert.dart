@@ -1,48 +1,39 @@
 part of 'dialogs.dart';
 
+typedef CustomAlertDialogBuilder = Widget Function(
+  BuildContext context,
+  String? title,
+  String? message,
+);
+
 class AlertDialogConfig extends DialogConfig {
+  final CustomAlertDialogBuilder? builder;
+
   const AlertDialogConfig({
+    super.material,
     super.negativeButtonText,
     super.negativeButtonTextStyle,
     super.positiveButtonText,
     super.positiveButtonTextStyle,
-    super.message,
     super.messageStyle,
-    super.title,
     super.titleStyle,
-  });
+  }) : builder = null;
 
-  AlertDialogConfig copy({
-    String? negativeButtonText,
-    TextStyle? negativeButtonTextStyle,
-    String? positiveButtonText,
-    TextStyle? positiveButtonTextStyle,
-    String? message,
-    TextStyle? messageStyle,
-    String? title,
-    TextStyle? titleStyle,
-  }) {
-    return AlertDialogConfig(
-      negativeButtonText: negativeButtonText ?? this.negativeButtonText,
-      negativeButtonTextStyle:
-          negativeButtonTextStyle ?? this.negativeButtonTextStyle,
-      positiveButtonText: positiveButtonText ?? this.positiveButtonText,
-      positiveButtonTextStyle:
-          positiveButtonTextStyle ?? this.positiveButtonTextStyle,
-      message: message ?? this.message,
-      messageStyle: messageStyle ?? this.messageStyle,
-      title: title ?? this.title,
-      titleStyle: titleStyle ?? this.titleStyle,
-    );
-  }
+  const AlertDialogConfig.builder(
+    CustomAlertDialogBuilder this.builder, {
+    super.material,
+  }) : super();
 }
 
 class _AlertDialog extends StatefulWidget {
+  final String? title;
+  final String? message;
   final AlertDialogConfig config;
 
   const _AlertDialog({
-    super.key,
     required this.config,
+    required this.title,
+    required this.message,
   });
 
   @override
@@ -53,14 +44,14 @@ class _AlertDialogState extends State<_AlertDialog> {
   late AlertDialogConfig config = widget.config;
 
   Widget? _title(BuildContext context) {
-    final data = config.title ?? "";
+    final data = widget.title ?? "";
     final isValid = data.isNotEmpty;
     if (!isValid) return null;
     return Text(data, style: config.titleStyle);
   }
 
   Widget? _subtitle(BuildContext context) {
-    final value = config.message ?? "";
+    final value = widget.message ?? "";
     final isValid = value.isNotEmpty;
     if (!isValid) return null;
     return Padding(
@@ -92,6 +83,9 @@ class _AlertDialogState extends State<_AlertDialog> {
 
   @override
   Widget build(BuildContext context) {
+    if (config.builder != null) {
+      return config.builder!(context, widget.title, widget.message);
+    }
     return BackdropFilter(
       filter: ImageFilter.blur(
         sigmaX: 10,

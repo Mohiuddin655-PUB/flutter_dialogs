@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 typedef OnDialogButtonClick = void Function(BuildContext context);
 
 class DialogButton extends StatelessWidget {
+  final bool material;
   final String text;
   final TextStyle? style;
   final Widget? child;
@@ -11,6 +12,7 @@ class DialogButton extends StatelessWidget {
 
   const DialogButton({
     super.key,
+    this.material = false,
     this.padding = const EdgeInsets.symmetric(
       vertical: 16,
       horizontal: 24,
@@ -24,10 +26,13 @@ class DialogButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      elevation: 0,
       color: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      child: GestureDetector(
+      child: InkWell(
         onTap: onClick != null ? () => onClick?.call(context) : null,
+        highlightColor: material ? null : Colors.transparent,
+        splashColor: Colors.transparent,
         child: Container(
           alignment: Alignment.center,
           padding: padding,

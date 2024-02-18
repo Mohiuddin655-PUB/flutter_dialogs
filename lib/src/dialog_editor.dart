@@ -1,62 +1,50 @@
 part of 'dialogs.dart';
 
+typedef CustomEditorDialogBuilder = Widget Function(BuildContext context);
+
 class EditableDialogConfig extends DialogConfig {
+  final CustomEditorDialogBuilder? builder;
   final TextEditingController? controller;
-  final String? hint;
   final TextStyle? hintStyle;
-  final String? text;
   final TextAlign? textAlign;
-  final TextStyle? style;
+  final TextStyle? textStyle;
 
   const EditableDialogConfig({
-    super.title,
+    super.material,
     super.titleStyle,
     this.controller,
-    this.hint,
     this.hintStyle,
-    this.text,
     this.textAlign,
-    this.style,
+    this.textStyle,
     String? buttonText,
     TextStyle? buttonTextStyle,
-  }) : super(
+  })  : builder = null,
+        super(
           positiveButtonText: buttonText,
           positiveButtonTextStyle: buttonTextStyle,
         );
 
-  EditableDialogConfig copy({
-    TextEditingController? controller,
-    String? buttonText,
-    TextStyle? buttonTextStyle,
-    String? title,
-    TextStyle? titleStyle,
-    String? hint,
-    TextStyle? hintStyle,
-    String? text,
-    TextAlign? textAlign,
-    TextStyle? textStyle,
-  }) {
-    return EditableDialogConfig(
-      controller: controller ?? this.controller,
-      buttonText: buttonText ?? positiveButtonText,
-      buttonTextStyle: buttonTextStyle ?? positiveButtonTextStyle,
-      title: title ?? this.title,
-      titleStyle: titleStyle ?? this.titleStyle,
-      hint: hint ?? this.hint,
-      hintStyle: hintStyle ?? this.hintStyle,
-      text: text ?? this.text,
-      textAlign: textAlign ?? this.textAlign,
-      style: textStyle ?? style,
-    );
-  }
+  const EditableDialogConfig.builder(
+    CustomEditorDialogBuilder this.builder, {
+    super.material,
+  })  : controller = null,
+        hintStyle = null,
+        textStyle = null,
+        textAlign = null,
+        super();
 }
 
 class _EditableDialog extends StatefulWidget {
+  final String? title;
+  final String? text;
+  final String? hint;
   final EditableDialogConfig config;
 
   const _EditableDialog({
-    super.key,
     required this.config,
+    this.title,
+    this.text,
+    this.hint,
   });
 
   @override
@@ -70,7 +58,7 @@ class _EditableDialogState extends State<_EditableDialog> {
   @override
   void initState() {
     _editor = config.controller ?? TextEditingController();
-    _editor.text = config.text ?? "";
+    _editor.text = widget.text ?? "";
     super.initState();
   }
 
@@ -90,7 +78,7 @@ class _EditableDialogState extends State<_EditableDialog> {
   }
 
   Widget? _title(BuildContext context) {
-    final data = config.title ?? "";
+    final data = widget.title ?? "";
     final isValid = data.isNotEmpty;
     if (!isValid) return null;
     return Text(data, style: config.titleStyle);
@@ -98,6 +86,9 @@ class _EditableDialogState extends State<_EditableDialog> {
 
   @override
   Widget build(BuildContext context) {
+    if (config.builder != null) {
+      return config.builder!(context);
+    }
     return BackdropFilter(
       filter: ImageFilter.blur(
         sigmaX: 10,
@@ -112,14 +103,14 @@ class _EditableDialogState extends State<_EditableDialog> {
             controller: _editor,
             autofocus: true,
             textAlign: config.textAlign ?? TextAlign.center,
-            style: config.style,
+            style: config.textStyle,
             minLines: 1,
             maxLines: 10,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.only(top: 16),
               isDense: false,
               isCollapsed: true,
-              hintText: config.hint ?? "Type here...",
+              hintText: widget.hint ?? "Type here...",
               hintStyle: config.hintStyle,
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
