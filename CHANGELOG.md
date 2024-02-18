@@ -1,3 +1,8 @@
+## 0.0.3
+
+* Initial context supports
+* Add documentations
+
 ## 0.0.2
 
 * Customizable all dialog

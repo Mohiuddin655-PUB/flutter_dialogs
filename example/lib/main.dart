@@ -3,7 +3,7 @@ import 'package:flutter_androssy_dialogs/dialogs.dart';
 
 void main() {
   Dialogs.init(
-    alertDialogConfig: const AlertDialogConfig(
+    alertDialogConfig: (context) => const AlertDialogConfig(
       positiveButtonTextStyle: TextStyle(
         color: Colors.orange,
         fontWeight: FontWeight.bold,
@@ -11,7 +11,7 @@ void main() {
       ),
       material: false,
     ),
-    messageDialogConfig: const MessageDialogConfig(
+    messageDialogConfig: (context) => const MessageDialogConfig(
       buttonTextStyle: TextStyle(
         color: Colors.orange,
         fontWeight: FontWeight.bold,
@@ -19,7 +19,7 @@ void main() {
       ),
       material: false,
     ),
-    loadingDialogConfig: LoadingDialogConfig(
+    loadingDialogConfig: (context) => LoadingDialogConfig(
       loader: Center(
         child: Container(
           width: 120,
@@ -35,14 +35,14 @@ void main() {
       ),
       material: false,
     ),
-    snackBarConfig: const SnackBarConfig(
+    snackBarConfig: (context) => const SnackBarConfig(
       messageStyle: TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
         fontSize: 16,
       ),
     ),
-    errorSnackBarConfig: SnackBarConfig(
+    errorSnackBarConfig: (context) => SnackBarConfig(
       background: Colors.red.withOpacity(0.1),
       messageStyle: const TextStyle(
         color: Colors.red,
@@ -50,7 +50,7 @@ void main() {
         fontSize: 16,
       ),
     ),
-    warningSnackBarConfig: SnackBarConfig(
+    warningSnackBarConfig: (context) => SnackBarConfig(
       background: Colors.orange.withOpacity(0.1),
       messageStyle: const TextStyle(
         color: Colors.orange,

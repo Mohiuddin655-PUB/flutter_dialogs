@@ -6,23 +6,34 @@ import 'package:flutter/material.dart';
 import 'button.dart';
 
 part 'configs.dart';
+
 part 'dialog_alert.dart';
+
 part 'dialog_editor.dart';
+
 part 'dialog_loading.dart';
+
 part 'dialog_message.dart';
+
 part 'dialog_snack_bar.dart';
+
 part 'type.dart';
 
+// Typedef for building dialog configurations dynamically
+typedef DialogConfigBuilder<T extends DialogConfig> = T Function(
+    BuildContext context);
+
+// Class for managing various types of dialogs and snack bars
 class Dialogs {
   final Map<DialogType, dynamic> _tags = {};
 
-  AlertDialogConfig alertDialogConfig = const AlertDialogConfig();
-  EditableDialogConfig editableDialogConfig = const EditableDialogConfig();
-  LoadingDialogConfig loadingDialogConfig = const LoadingDialogConfig();
-  MessageDialogConfig messageDialogConfig = const MessageDialogConfig();
-  SnackBarConfig snackBarConfig = const SnackBarConfig();
-  SnackBarConfig errorSnackBarConfig = const SnackBarConfig();
-  SnackBarConfig warningSnackBarConfig = const SnackBarConfig();
+  DialogConfigBuilder<AlertDialogConfig>? alertDialogConfig;
+  DialogConfigBuilder<EditableDialogConfig>? editableDialogConfig;
+  DialogConfigBuilder<LoadingDialogConfig>? loadingDialogConfig;
+  DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig;
+  DialogConfigBuilder<SnackBarConfig>? snackBarConfig;
+  DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig;
+  DialogConfigBuilder<SnackBarConfig>? warningSnackBarConfig;
 
   Dialogs._();
 
@@ -30,14 +41,15 @@ class Dialogs {
 
   static Dialogs get i => _i ??= Dialogs._();
 
+  // Initialize the dialog configurations
   static init({
-    AlertDialogConfig? alertDialogConfig,
-    EditableDialogConfig? editableDialogConfig,
-    LoadingDialogConfig? loadingDialogConfig,
-    MessageDialogConfig? messageDialogConfig,
-    SnackBarConfig? snackBarConfig,
-    SnackBarConfig? errorSnackBarConfig,
-    SnackBarConfig? warningSnackBarConfig,
+    DialogConfigBuilder<AlertDialogConfig>? alertDialogConfig,
+    DialogConfigBuilder<EditableDialogConfig>? editableDialogConfig,
+    DialogConfigBuilder<LoadingDialogConfig>? loadingDialogConfig,
+    DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig,
+    DialogConfigBuilder<SnackBarConfig>? snackBarConfig,
+    DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig,
+    DialogConfigBuilder<SnackBarConfig>? warningSnackBarConfig,
   }) {
     i.alertDialogConfig = alertDialogConfig ?? i.alertDialogConfig;
     i.editableDialogConfig = editableDialogConfig ?? i.editableDialogConfig;
@@ -48,12 +60,15 @@ class Dialogs {
     i.warningSnackBarConfig = warningSnackBarConfig ?? i.warningSnackBarConfig;
   }
 
-  Future<bool> alert(
-    BuildContext context, {
-    String? title,
-    String? message,
-  }) {
-    final config = alertDialogConfig;
+  /// Shows an alert dialog.
+  ///
+  /// Example:
+  /// ```dart
+  /// await Dialogs.i.alert(context, title: "Alert", message: "This is an alert message");
+  /// ```
+  Future<bool> alert(BuildContext context, {String? title, String? message}) {
+    final config =
+        alertDialogConfig?.call(context) ?? const AlertDialogConfig();
     if (config.material) {
       return showDialog(
         context: context,
@@ -75,13 +90,16 @@ class Dialogs {
     }
   }
 
-  Future<String> editor(
-    BuildContext context, {
-    String? title,
-    String? text,
-    String? hint,
-  }) {
-    final config = editableDialogConfig;
+  /// Shows an editable dialog for input.
+  ///
+  /// Example:
+  /// ```dart
+  /// String result = await Dialogs.i.editor(context, title: "Edit", text: "Initial text", hint: "Enter text");
+  /// ```
+  Future<String> editor(BuildContext context,
+      {String? title, String? text, String? hint}) {
+    final config =
+        editableDialogConfig?.call(context) ?? const EditableDialogConfig();
     if (config.material) {
       return showDialog(
         context: context,
@@ -107,13 +125,24 @@ class Dialogs {
     }
   }
 
+  /// Checks if loader mode is active.
+  ///
+  /// Example:
+  /// ```dart
+  /// bool isLoading = Dialogs.i.isLoaderMode;
+  /// ```
   bool get isLoaderMode => _tags[DialogType.loader] ?? false;
 
-  Future<bool> loader(
-    BuildContext context, {
-    bool status = true,
-  }) {
-    final config = loadingDialogConfig;
+  /// Shows or hides a loader dialog.
+  ///
+  /// Example:
+  /// ```dart
+  /// bool showLoader = true; // Set to false to hide loader
+  /// await Dialogs.i.loader(context, status: showLoader);
+  /// ```
+  Future<bool> loader(BuildContext context, {bool status = true}) {
+    final config =
+        loadingDialogConfig?.call(context) ?? const LoadingDialogConfig();
     if (isLoaderMode && status) return Future.value(false);
     if (!isLoaderMode && !status) return Future.value(false);
     if (status) {
@@ -137,14 +166,17 @@ class Dialogs {
     }
   }
 
-  Future<bool> message(
-    BuildContext context,
-    String? message, {
-    String? title,
-  }) {
+  /// Shows a message dialog.
+  ///
+  /// Example:
+  /// ```dart
+  /// await Dialogs.i.message(context, "This is a message", title: "Message");
+  /// ```
+  Future<bool> message(BuildContext context, String? message, {String? title}) {
     final oldMessage = _tags[DialogType.message];
     if (message != oldMessage) {
-      final config = messageDialogConfig;
+      final config =
+          messageDialogConfig?.call(context) ?? const MessageDialogConfig();
       _tags[DialogType.message] = message;
       if (config.material) {
         return showDialog(
@@ -178,6 +210,7 @@ class Dialogs {
     }
   }
 
+  /// Private function to show a custom SnackBar.
   void _snackBar(
     BuildContext context,
     String message,
@@ -201,29 +234,47 @@ class Dialogs {
     }
   }
 
+  /// Shows a snack bar with the specified message.
+  ///
+  /// Example:
+  /// ```dart
+  /// Dialogs.i.snackBar(context, "This is a snack bar message");
+  /// ```
   void snackBar(BuildContext context, String message) {
     _snackBar(
       context,
       message,
-      snackBarConfig,
+      snackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBar,
     );
   }
 
+  /// Shows an error-themed snack bar with the specified message.
+  ///
+  /// Example:
+  /// ```dart
+  /// Dialogs.i.snackBarError(context, "An error occurred");
+  /// ```
   void snackBarError(BuildContext context, String message) {
     _snackBar(
       context,
       message,
-      errorSnackBarConfig,
+      errorSnackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBarError,
     );
   }
 
+  /// Shows a warning-themed snack bar with the specified message.
+  ///
+  /// Example:
+  /// ```dart
+  /// Dialogs.i.snackBarWarning(context, "Warning: Something went wrong");
+  /// ```
   void snackBarWarning(BuildContext context, String message) {
     _snackBar(
       context,
       message,
-      warningSnackBarConfig,
+      warningSnackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBarWarning,
     );
   }
