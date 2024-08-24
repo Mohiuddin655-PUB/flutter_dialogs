@@ -51,11 +51,8 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showSnackBar("This is a SnackBar message");
   /// ```
-  void showSnackBar(
-    String message, {
-    String? title,
-  }) {
-    Dialogs.i.snackBar(this, message, title: title);
+  void showSnackBar(String? message, {String? title}) {
+    Dialogs.i.snackBar(this, title: title, message: message);
   }
 
   /// Shows an error-themed SnackBar with the provided error message.
@@ -64,11 +61,28 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showErrorSnackBar("An error occurred");
   /// ```
-  void showErrorSnackBar(
-    String error, {
-    String? title,
-  }) {
-    Dialogs.i.snackBarError(this, error, title: title);
+  void showErrorSnackBar(String? message, {String? title}) {
+    Dialogs.i.snackBarError(this, title: title, message: message);
+  }
+
+  /// Shows a warning-themed SnackBar with the provided warning message.
+  ///
+  /// Example:
+  /// ```dart
+  /// context.showWarningSnackBar("This is a info message");
+  /// ```
+  void showInfoSnackBar(String? message, {String? title}) {
+    Dialogs.i.snackBarInfo(this, title: title, message: message);
+  }
+
+  /// Shows a warning-themed SnackBar with the provided warning message.
+  ///
+  /// Example:
+  /// ```dart
+  /// context.showWaitingSnackBar("This is a waiting message");
+  /// ```
+  void showWaitingSnackBar(String? message, {String? title}) {
+    Dialogs.i.snackBarWaiting(this, title: title, message: message);
   }
 
   /// Shows a warning-themed SnackBar with the provided warning message.
@@ -77,31 +91,7 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showWarningSnackBar("This is a warning message");
   /// ```
-  void showInfoSnackBar(
-    String message, {
-    String? title,
-  }) {
-    Dialogs.i.snackBarInfo(
-      this,
-      message,
-      title: title,
-    );
-  }
-
-  /// Shows a warning-themed SnackBar with the provided warning message.
-  ///
-  /// Example:
-  /// ```dart
-  /// context.showWarningSnackBar("This is a warning message");
-  /// ```
-  void showWarningSnackBar(
-    String message, {
-    String? title,
-  }) {
-    Dialogs.i.snackBarWarning(
-      this,
-      message,
-      title: title,
-    );
+  void showWarningSnackBar(String? message, {String? title}) {
+    Dialogs.i.snackBarWarning(this, title: title, message: message);
   }
 }

@@ -1,3 +1,8 @@
+## 1.0.1
+
+* Update snack bars
+* Add common dialog theme colors
+
 ## 1.0.0
 
 * Add snack bars [AndrossyFancySnackBar, AndrossyOverlaySnackBar]

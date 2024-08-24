@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_androssy_dialogs/dialogs.dart';
 
 import 'button.dart';
 
@@ -16,7 +17,8 @@ part 'type.dart';
 
 // Typedef for building dialog configurations dynamically
 typedef DialogConfigBuilder<T extends DialogConfig> = T Function(
-    BuildContext context);
+  BuildContext context,
+);
 
 // Class for managing various types of dialogs and snack bars
 class Dialogs {
@@ -29,6 +31,7 @@ class Dialogs {
   DialogConfigBuilder<SnackBarConfig>? snackBarConfig;
   DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig;
   DialogConfigBuilder<SnackBarConfig>? infoSnackBarConfig;
+  DialogConfigBuilder<SnackBarConfig>? waitingSnackBarConfig;
   DialogConfigBuilder<SnackBarConfig>? warningSnackBarConfig;
 
   Dialogs._();
@@ -46,6 +49,7 @@ class Dialogs {
     DialogConfigBuilder<SnackBarConfig>? snackBarConfig,
     DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig,
     DialogConfigBuilder<SnackBarConfig>? infoSnackBarConfig,
+    DialogConfigBuilder<SnackBarConfig>? waitingSnackBarConfig,
     DialogConfigBuilder<SnackBarConfig>? warningSnackBarConfig,
   }) {
     i.alertDialogConfig = alertDialogConfig ?? i.alertDialogConfig;
@@ -55,6 +59,7 @@ class Dialogs {
     i.snackBarConfig = snackBarConfig ?? i.snackBarConfig;
     i.errorSnackBarConfig = errorSnackBarConfig ?? i.errorSnackBarConfig;
     i.infoSnackBarConfig = infoSnackBarConfig ?? i.infoSnackBarConfig;
+    i.waitingSnackBarConfig = waitingSnackBarConfig ?? i.waitingSnackBarConfig;
     i.warningSnackBarConfig = warningSnackBarConfig ?? i.warningSnackBarConfig;
   }
 
@@ -211,8 +216,8 @@ class Dialogs {
   /// Private function to show a custom SnackBar.
   void _snackBar(
     BuildContext context,
-    String title,
-    String message,
+    String? title,
+    String? message,
     SnackBarConfig config,
     DialogType type,
   ) {
@@ -241,13 +246,13 @@ class Dialogs {
   /// Dialogs.i.snackBar(context, "This is a snack bar message");
   /// ```
   void snackBar(
-    BuildContext context,
-    String message, {
+    BuildContext context, {
+    String? message,
     String? title,
   }) {
     _snackBar(
       context,
-      title ?? "",
+      title,
       message,
       snackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBar,
@@ -261,13 +266,13 @@ class Dialogs {
   /// Dialogs.i.snackBarError(context, "An error occurred");
   /// ```
   void snackBarError(
-    BuildContext context,
-    String message, {
+    BuildContext context, {
     String? title,
+    String? message,
   }) {
     _snackBar(
       context,
-      title ?? "",
+      title,
       message,
       errorSnackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBarError,
@@ -281,16 +286,36 @@ class Dialogs {
   /// Dialogs.i.snackBarInfo(context, "Warning: Something went wrong");
   /// ```
   void snackBarInfo(
-    BuildContext context,
-    String message, {
+    BuildContext context, {
     String? title,
+    String? message,
   }) {
     _snackBar(
       context,
-      title ?? "",
+      title,
       message,
       infoSnackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBarWarning,
+    );
+  }
+
+  /// Shows a waiting-themed snack bar with the specified message.
+  ///
+  /// Example:
+  /// ```dart
+  /// Dialogs.i.snackBarWaiting(context, "Warning: Something went wrong");
+  /// ```
+  void snackBarWaiting(
+    BuildContext context, {
+    String? title,
+    String? message,
+  }) {
+    _snackBar(
+      context,
+      title,
+      message,
+      waitingSnackBarConfig?.call(context) ?? const SnackBarConfig(),
+      DialogType.snackBarWaiting,
     );
   }
 
@@ -301,13 +326,13 @@ class Dialogs {
   /// Dialogs.i.snackBarWarning(context, "Warning: Something went wrong");
   /// ```
   void snackBarWarning(
-    BuildContext context,
-    String message, {
+    BuildContext context, {
     String? title,
+    String? message,
   }) {
     _snackBar(
       context,
-      title ?? "",
+      title,
       message,
       warningSnackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBarWarning,

@@ -8,6 +8,7 @@ enum DialogType {
   snackBar,
   snackBarError,
   snackBarInfo,
+  snackBarWaiting,
   snackBarWarning;
 
   bool get isAlert => this == alert;
@@ -23,6 +24,8 @@ enum DialogType {
   bool get isErrorSnackBar => this == snackBarError;
 
   bool get isInfoSnackBar => this == snackBarInfo;
+
+  bool get isWaitingSnackBar => this == snackBarWaiting;
 
   bool get isWarningSnackBar => this == snackBarWarning;
 }

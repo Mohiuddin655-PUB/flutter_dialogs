@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+const _kPackage = "flutter_androssy_dialogs";
+
 class AndrossyFancySnackBar extends StatelessWidget {
-  final String title;
+  final String? title;
   final String message;
   final Color? color;
   final AndrossyFancySnackBarContent contentType;
@@ -15,7 +17,7 @@ class AndrossyFancySnackBar extends StatelessWidget {
     this.color,
     this.titleFontSize,
     this.messageFontSize,
-    required this.title,
+    this.title,
     required this.message,
     this.contentType = AndrossyFancySnackBarContent.success,
     this.inMaterialBanner = false,
@@ -23,10 +25,11 @@ class AndrossyFancySnackBar extends StatelessWidget {
 
   static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> show(
     BuildContext context, {
-    required String title,
+    String? title,
     required String message,
     Color? color,
-    AndrossyFancySnackBarContent contentType = AndrossyFancySnackBarContent.success,
+    AndrossyFancySnackBarContent contentType =
+        AndrossyFancySnackBarContent.success,
     bool inMaterialBanner = false,
     double? titleFontSize,
     double? messageFontSize,
@@ -101,6 +104,7 @@ class AndrossyFancySnackBar extends StatelessWidget {
                 _Icons.bubbles,
                 height: size.height * 0.06,
                 width: size.width * 0.05,
+                package: _kPackage,
                 colorFilter: ColorFilter.mode(
                   hslDark.toColor(),
                   BlendMode.srcIn,
@@ -126,6 +130,7 @@ class AndrossyFancySnackBar extends StatelessWidget {
                 SvgPicture.asset(
                   _Icons.back,
                   height: size.height * 0.06,
+                  package: _kPackage,
                   colorFilter: ColorFilter.mode(
                     hslDark.toColor(),
                     BlendMode.srcIn,
@@ -136,6 +141,7 @@ class AndrossyFancySnackBar extends StatelessWidget {
                   child: SvgPicture.asset(
                     contentType.icon,
                     height: size.height * 0.022,
+                    package: _kPackage,
                   ),
                 )
               ],
@@ -157,7 +163,7 @@ class AndrossyFancySnackBar extends StatelessWidget {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        title,
+                        title ?? contentType.message,
                         style: TextStyle(
                           fontSize: titleFontSize ??
                               (!isMobile
@@ -180,6 +186,7 @@ class AndrossyFancySnackBar extends StatelessWidget {
                       child: SvgPicture.asset(
                         _Icons.failure,
                         height: size.height * 0.022,
+                        package: _kPackage,
                       ),
                     ),
                   ],
@@ -210,52 +217,66 @@ class AndrossyFancySnackBar extends StatelessWidget {
 
 class AndrossyFancySnackBarContent {
   final String icon;
+  final String title;
   final String message;
-
   final Color? color;
 
-  const AndrossyFancySnackBarContent(
-    this.message,
-    this.icon, [
+  const AndrossyFancySnackBarContent({
+    required this.title,
+    required this.message,
+    required this.icon,
     this.color,
-  ]);
+  });
 
-  static const AndrossyFancySnackBarContent help = AndrossyFancySnackBarContent(
-    'help',
-    _Icons.help,
-    _Colors.helpBlue,
+  static const info = AndrossyFancySnackBarContent(
+    title: 'Hi there!',
+    message: 'Do you have a problem? Just use the contact form.',
+    icon: _Icons.info,
+    color: _Colors.infoBlue,
   );
-  static const AndrossyFancySnackBarContent failure = AndrossyFancySnackBarContent(
-    'failure',
-    _Icons.failure,
-    _Colors.failureRed,
+  static const failure = AndrossyFancySnackBarContent(
+    title: 'Oh snap!',
+    message: 'Change a few things up and try submitting again.',
+    icon: _Icons.failure,
+    color: _Colors.failureRed,
   );
-  static const AndrossyFancySnackBarContent success = AndrossyFancySnackBarContent(
-    'success',
-    _Icons.success,
-    _Colors.successGreen,
+  static const success = AndrossyFancySnackBarContent(
+    title: 'Well done!',
+    message: "You successfully read this important message.",
+    icon: _Icons.success,
+    color: _Colors.successGreen,
   );
-  static const AndrossyFancySnackBarContent warning = AndrossyFancySnackBarContent(
-    'warning',
-    _Icons.warning,
-    _Colors.warningYellow,
+  static const waiting = AndrossyFancySnackBarContent(
+    title: 'Waiting!',
+    message: "Please wait for a moment while fetching data.",
+    icon: _Icons.waiting,
+    color: _Colors.waitingYellow,
+  );
+  static const warning = AndrossyFancySnackBarContent(
+    title: 'Warning!',
+    message: "Sorry! There was a problem with your request.",
+    icon: _Icons.warning,
+    color: _Colors.warningYellow,
   );
 }
 
 abstract class _Colors {
-  static const Color helpBlue = Color(0xff3282B8);
+  static const Color infoBlue = Color(0xff3282B8);
 
   static const Color failureRed = Color(0xffc72c41);
 
   static const Color successGreen = Color(0xff2D6A4F);
 
+  static const Color waitingYellow = Color(0xFF213D4A);
+
   static const Color warningYellow = Color(0xffFCA652);
 }
 
 abstract class _Icons {
-  static const String help = 'assets/help.svg';
+  static const String info = 'assets/help.svg';
   static const String failure = 'assets/failure.svg';
   static const String success = 'assets/success.svg';
+  static const String waiting = 'assets/waiting.svg';
   static const String warning = 'assets/warning.svg';
 
   static const String back = 'assets/back.svg';

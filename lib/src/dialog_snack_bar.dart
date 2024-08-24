@@ -2,8 +2,8 @@ part of 'dialogs.dart';
 
 typedef CustomSnackBarBuilder = Widget Function(
   BuildContext context,
-  String title,
-  String message,
+  String? title,
+  String? message,
 );
 
 class SnackBarConfig extends DialogConfig {
@@ -34,8 +34,8 @@ class SnackBarConfig extends DialogConfig {
 }
 
 class _SnackBar extends StatelessWidget {
-  final String title;
-  final String message;
+  final String? title;
+  final String? message;
   final SnackBarConfig config;
 
   const _SnackBar({
@@ -61,7 +61,7 @@ class _SnackBar extends StatelessWidget {
             theme.primaryColor,
       ),
       child: Text(
-        message,
+        message ?? "",
         maxLines: 2,
         textAlign: TextAlign.center,
         overflow: TextOverflow.ellipsis,
