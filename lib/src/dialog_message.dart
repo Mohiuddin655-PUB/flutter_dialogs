@@ -27,6 +27,63 @@ class MessageDialogConfig extends DialogConfig {
   }) : super();
 }
 
+class AndrossyMessageDialog extends StatelessWidget {
+  final String? title;
+  final String? message;
+  final MessageDialogConfig config;
+  final int _type;
+
+  const AndrossyMessageDialog({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.config,
+  }) : _type = 0;
+
+  const AndrossyMessageDialog.cupertino({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.config,
+  }) : _type = 1;
+
+  const AndrossyMessageDialog.material({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.config,
+  }) : _type = 2;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_type == 1) {
+      return _CupertinoMessageDialog(
+        title: title,
+        message: message,
+        config: config,
+      );
+    } else if (_type == 2) {
+      return _MaterialMessageDialog(
+        title: title,
+        message: message,
+        config: config,
+      );
+    } else {
+      return Platform.isIOS || Platform.isMacOS
+          ? _CupertinoMessageDialog(
+              title: title,
+              message: message,
+              config: config,
+            )
+          : _MaterialMessageDialog(
+              title: title,
+              message: message,
+              config: config,
+            );
+    }
+  }
+}
+
 class _MaterialMessageDialog extends StatelessWidget {
   final String? title;
   final String? message;

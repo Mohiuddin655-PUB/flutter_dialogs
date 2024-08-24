@@ -13,10 +13,10 @@ class LoadingDialogConfig extends DialogConfig {
   });
 }
 
-class LoadingDialog extends StatelessWidget {
+class AndrossyLoadingDialog extends StatelessWidget {
   final LoadingDialogConfig config;
 
-  const LoadingDialog({
+  const AndrossyLoadingDialog({
     super.key,
     required this.config,
   });

@@ -25,22 +25,22 @@ class AlertDialogConfig extends DialogConfig {
   }) : super();
 }
 
-class _AlertDialog extends StatefulWidget {
+class AndrossyAlertDialog extends StatefulWidget {
   final String? title;
   final String? message;
   final AlertDialogConfig config;
 
-  const _AlertDialog({
+  const AndrossyAlertDialog({
     required this.config,
     required this.title,
     required this.message,
   });
 
   @override
-  State<_AlertDialog> createState() => _AlertDialogState();
+  State<AndrossyAlertDialog> createState() => _AndrossyAlertDialogState();
 }
 
-class _AlertDialogState extends State<_AlertDialog> {
+class _AndrossyAlertDialogState extends State<AndrossyAlertDialog> {
   late AlertDialogConfig config = widget.config;
 
   Widget? _title(BuildContext context) {

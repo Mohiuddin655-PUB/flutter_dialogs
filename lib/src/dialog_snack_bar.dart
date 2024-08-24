@@ -2,6 +2,7 @@ part of 'dialogs.dart';
 
 typedef CustomSnackBarBuilder = Widget Function(
   BuildContext context,
+  String title,
   String message,
 );
 
@@ -33,10 +34,12 @@ class SnackBarConfig extends DialogConfig {
 }
 
 class _SnackBar extends StatelessWidget {
+  final String title;
   final String message;
   final SnackBarConfig config;
 
   const _SnackBar({
+    required this.title,
     required this.message,
     required this.config,
   });
@@ -44,7 +47,7 @@ class _SnackBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (config.builder != null) {
-      return config.builder!(context, message);
+      return config.builder!(context, title, message);
     }
     final theme = Theme.of(context);
     return Container(

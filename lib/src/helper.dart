@@ -51,8 +51,11 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showSnackBar("This is a SnackBar message");
   /// ```
-  void showSnackBar(String message) {
-    Dialogs.i.snackBar(this, message);
+  void showSnackBar(
+    String message, {
+    String? title,
+  }) {
+    Dialogs.i.snackBar(this, message, title: title);
   }
 
   /// Shows an error-themed SnackBar with the provided error message.
@@ -61,8 +64,11 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showErrorSnackBar("An error occurred");
   /// ```
-  void showErrorSnackBar(String error) {
-    Dialogs.i.snackBarError(this, error);
+  void showErrorSnackBar(
+    String error, {
+    String? title,
+  }) {
+    Dialogs.i.snackBarError(this, error, title: title);
   }
 
   /// Shows a warning-themed SnackBar with the provided warning message.
@@ -71,7 +77,31 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showWarningSnackBar("This is a warning message");
   /// ```
-  void showWarningSnackBar(String message) {
-    Dialogs.i.snackBarWarning(this, message);
+  void showInfoSnackBar(
+    String message, {
+    String? title,
+  }) {
+    Dialogs.i.snackBarInfo(
+      this,
+      message,
+      title: title,
+    );
+  }
+
+  /// Shows a warning-themed SnackBar with the provided warning message.
+  ///
+  /// Example:
+  /// ```dart
+  /// context.showWarningSnackBar("This is a warning message");
+  /// ```
+  void showWarningSnackBar(
+    String message, {
+    String? title,
+  }) {
+    Dialogs.i.snackBarWarning(
+      this,
+      message,
+      title: title,
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -6,17 +7,11 @@ import 'package:flutter/material.dart';
 import 'button.dart';
 
 part 'configs.dart';
-
 part 'dialog_alert.dart';
-
 part 'dialog_editor.dart';
-
 part 'dialog_loading.dart';
-
 part 'dialog_message.dart';
-
 part 'dialog_snack_bar.dart';
-
 part 'type.dart';
 
 // Typedef for building dialog configurations dynamically
@@ -33,6 +28,7 @@ class Dialogs {
   DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig;
   DialogConfigBuilder<SnackBarConfig>? snackBarConfig;
   DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig;
+  DialogConfigBuilder<SnackBarConfig>? infoSnackBarConfig;
   DialogConfigBuilder<SnackBarConfig>? warningSnackBarConfig;
 
   Dialogs._();
@@ -49,6 +45,7 @@ class Dialogs {
     DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig,
     DialogConfigBuilder<SnackBarConfig>? snackBarConfig,
     DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig,
+    DialogConfigBuilder<SnackBarConfig>? infoSnackBarConfig,
     DialogConfigBuilder<SnackBarConfig>? warningSnackBarConfig,
   }) {
     i.alertDialogConfig = alertDialogConfig ?? i.alertDialogConfig;
@@ -57,6 +54,7 @@ class Dialogs {
     i.messageDialogConfig = messageDialogConfig ?? i.messageDialogConfig;
     i.snackBarConfig = snackBarConfig ?? i.snackBarConfig;
     i.errorSnackBarConfig = errorSnackBarConfig ?? i.errorSnackBarConfig;
+    i.infoSnackBarConfig = infoSnackBarConfig ?? i.infoSnackBarConfig;
     i.warningSnackBarConfig = warningSnackBarConfig ?? i.warningSnackBarConfig;
   }
 
@@ -72,7 +70,7 @@ class Dialogs {
     if (config.material) {
       return showDialog(
         context: context,
-        builder: (_) => _AlertDialog(
+        builder: (_) => AndrossyAlertDialog(
           config: config,
           title: title,
           message: message,
@@ -81,7 +79,7 @@ class Dialogs {
     } else {
       return showCupertinoDialog(
         context: context,
-        builder: (_) => _AlertDialog(
+        builder: (_) => AndrossyAlertDialog(
           config: config,
           title: title,
           message: message,
@@ -104,7 +102,7 @@ class Dialogs {
       return showDialog(
         context: context,
         barrierDismissible: true,
-        builder: (_) => _EditableDialog(
+        builder: (_) => AndrossyEditableDialog(
           config: config,
           title: title,
           text: text,
@@ -115,7 +113,7 @@ class Dialogs {
       return showCupertinoDialog(
         context: context,
         barrierDismissible: true,
-        builder: (_) => _EditableDialog(
+        builder: (_) => AndrossyEditableDialog(
           config: config,
           title: title,
           text: text,
@@ -150,7 +148,7 @@ class Dialogs {
       return showDialog<bool>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => LoadingDialog(config: config),
+        builder: (context) => AndrossyLoadingDialog(config: config),
       ).onError((_, __) => null).then((value) {
         _tags.remove(DialogType.loader);
         return value is bool ? value : false;
@@ -213,6 +211,7 @@ class Dialogs {
   /// Private function to show a custom SnackBar.
   void _snackBar(
     BuildContext context,
+    String title,
     String message,
     SnackBarConfig config,
     DialogType type,
@@ -224,6 +223,7 @@ class Dialogs {
         backgroundColor: Colors.transparent,
         content: _SnackBar(
           config: config,
+          title: title,
           message: message,
         ),
       );
@@ -240,9 +240,14 @@ class Dialogs {
   /// ```dart
   /// Dialogs.i.snackBar(context, "This is a snack bar message");
   /// ```
-  void snackBar(BuildContext context, String message) {
+  void snackBar(
+    BuildContext context,
+    String message, {
+    String? title,
+  }) {
     _snackBar(
       context,
+      title ?? "",
       message,
       snackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBar,
@@ -255,12 +260,37 @@ class Dialogs {
   /// ```dart
   /// Dialogs.i.snackBarError(context, "An error occurred");
   /// ```
-  void snackBarError(BuildContext context, String message) {
+  void snackBarError(
+    BuildContext context,
+    String message, {
+    String? title,
+  }) {
     _snackBar(
       context,
+      title ?? "",
       message,
       errorSnackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBarError,
+    );
+  }
+
+  /// Shows a info-themed snack bar with the specified message.
+  ///
+  /// Example:
+  /// ```dart
+  /// Dialogs.i.snackBarInfo(context, "Warning: Something went wrong");
+  /// ```
+  void snackBarInfo(
+    BuildContext context,
+    String message, {
+    String? title,
+  }) {
+    _snackBar(
+      context,
+      title ?? "",
+      message,
+      infoSnackBarConfig?.call(context) ?? const SnackBarConfig(),
+      DialogType.snackBarWarning,
     );
   }
 
@@ -270,9 +300,14 @@ class Dialogs {
   /// ```dart
   /// Dialogs.i.snackBarWarning(context, "Warning: Something went wrong");
   /// ```
-  void snackBarWarning(BuildContext context, String message) {
+  void snackBarWarning(
+    BuildContext context,
+    String message, {
+    String? title,
+  }) {
     _snackBar(
       context,
+      title ?? "",
       message,
       warningSnackBarConfig?.call(context) ?? const SnackBarConfig(),
       DialogType.snackBarWarning,

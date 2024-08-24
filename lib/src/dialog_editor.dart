@@ -34,13 +34,14 @@ class EditableDialogConfig extends DialogConfig {
         super();
 }
 
-class _EditableDialog extends StatefulWidget {
+class AndrossyEditableDialog extends StatefulWidget {
   final String? title;
   final String? text;
   final String? hint;
   final EditableDialogConfig config;
 
-  const _EditableDialog({
+  const AndrossyEditableDialog({
+    super.key,
     required this.config,
     this.title,
     this.text,
@@ -48,10 +49,10 @@ class _EditableDialog extends StatefulWidget {
   });
 
   @override
-  State<_EditableDialog> createState() => _EditableDialogState();
+  State<AndrossyEditableDialog> createState() => _AndrossyEditableDialogState();
 }
 
-class _EditableDialogState extends State<_EditableDialog> {
+class _AndrossyEditableDialogState extends State<AndrossyEditableDialog> {
   late EditableDialogConfig config = widget.config;
   late TextEditingController _editor;
 

@@ -1,3 +1,8 @@
+## 1.0.0
+
+* Add snack bars [AndrossyFancySnackBar, AndrossyOverlaySnackBar]
+* All dialogs are publicly usable
+
 ## 0.0.3
 
 * Initial context supports
