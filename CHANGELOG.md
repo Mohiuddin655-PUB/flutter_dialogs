@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Fancy scan bar update
+
 ## 1.0.1
 
 * Update snack bars

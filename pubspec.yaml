@@ -1,6 +1,6 @@
 name: flutter_androssy_dialogs
 description: "Customized alert dialog, editable dialog, loading dialog, message dialog, and some snacks"
-version: 1.0.1
+version: 1.0.2
 repository: https://github.com/Mohiuddin655-ORG/flutter_dialogs.git
 
 environment:
@@ -18,9 +18,6 @@ dev_dependencies:
   flutter_lints: ^3.0.1
 
 flutter:
-
   uses-material-design: true
 
-  assets:
-    - assets/
 

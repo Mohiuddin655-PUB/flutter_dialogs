@@ -1,284 +1,521 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
-const _kPackage = "flutter_androssy_dialogs";
-
-class AndrossyFancySnackBar extends StatelessWidget {
-  final String? title;
-  final String message;
+class AndrossyFancySnackBar extends StatefulWidget {
+  final double animationDuration;
+  final double reverseAnimationDuration;
+  final double duration;
+  final Widget? title;
+  final String? titleText;
+  final AndrossySnackBarType type;
+  final Widget? message;
+  final String? messageText;
   final Color? color;
-  final AndrossyFancySnackBarContent contentType;
-  final bool inMaterialBanner;
-  final double? titleFontSize;
-  final double? messageFontSize;
 
   const AndrossyFancySnackBar({
     super.key,
-    this.color,
-    this.titleFontSize,
-    this.messageFontSize,
+    this.animationDuration = 0.3,
+    this.reverseAnimationDuration = 0.3,
+    this.titleText,
     this.title,
-    required this.message,
-    this.contentType = AndrossyFancySnackBarContent.success,
-    this.inMaterialBanner = false,
+    this.messageText,
+    this.message,
+    this.duration = 3,
+    this.type = AndrossySnackBarType.success,
+    this.color,
   });
 
-  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> show(
+  static show(
     BuildContext context, {
-    String? title,
-    required String message,
+    double duration = 3,
+    VoidCallback? onCloseEvent,
     Color? color,
-    AndrossyFancySnackBarContent contentType =
-        AndrossyFancySnackBarContent.success,
-    bool inMaterialBanner = false,
-    double? titleFontSize,
-    double? messageFontSize,
-  }) {
-    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: Colors.transparent,
-      content: AndrossyFancySnackBar(
-        title: title,
-        message: message,
-        color: color,
-        contentType: contentType,
-        inMaterialBanner: inMaterialBanner,
-        titleFontSize: titleFontSize,
-        messageFontSize: messageFontSize,
+    double animationDuration = 0.3,
+    double reverseAnimationDuration = 0.3,
+    String? titleText,
+    Widget? title,
+    AndrossySnackBarType type = AndrossySnackBarType.success,
+    String? messageText,
+    Widget? message,
+  }) async {
+    OverlayEntry d = OverlayEntry(
+      builder: (context) {
+        return AndrossyFancySnackBar(
+          duration: duration,
+          animationDuration: animationDuration,
+          reverseAnimationDuration: reverseAnimationDuration,
+          title: title,
+          titleText: titleText,
+          messageText: messageText,
+          message: message,
+          type: type,
+          color: color,
+        );
+      },
+    );
+    Overlay.of(context).insert(d);
+    await Future.delayed(Duration(milliseconds: (duration * 1000).toInt()));
+    if (d.mounted) d.remove();
+    if (onCloseEvent != null) onCloseEvent();
+  }
+
+  @override
+  State<AndrossyFancySnackBar> createState() => _AndrossyFancySnackBarState();
+}
+
+class _AndrossyFancySnackBarState extends State<AndrossyFancySnackBar>
+    with TickerProviderStateMixin {
+  late AnimationController _animationStartController;
+  late Animation _startAnimation;
+  late AnimationController _bubbleAnimationController;
+  late Animation _bubbleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationStartController = AnimationController(
+      vsync: this,
+      duration: Duration(
+        milliseconds: (widget.animationDuration * 1000).toInt(),
       ),
-    ));
+      reverseDuration: Duration(
+        milliseconds: (widget.animationDuration * 1000).toInt(),
+      ),
+    );
+
+    _startAnimation = Tween<double>(begin: -60.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _animationStartController,
+        curve: Curves.bounceInOut,
+      ),
+    );
+
+    _bubbleAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(
+        milliseconds: (widget.animationDuration * 1000).toInt(),
+      ),
+      reverseDuration: Duration(
+        milliseconds: (widget.animationDuration * 1000).toInt(),
+      ),
+    );
+
+    _bubbleAnimation = Tween<double>(begin: -0.2, end: -0.6).animate(
+      CurvedAnimation(
+        parent: _bubbleAnimationController,
+        curve: Curves.bounceInOut,
+      ),
+    );
+
+    _bubbleAnimationController.repeat(reverse: true);
+
+    _animationStartController.forward().then((value) async {
+      double displayDuration = widget.duration -
+          (widget.animationDuration + widget.reverseAnimationDuration);
+
+      await Future.delayed(
+        Duration(
+          milliseconds: (displayDuration * 1000).toInt(),
+        ),
+      ).then((value) => _animationStartController.reverse());
+      _bubbleAnimationController.stop();
+    });
+  }
+
+  @override
+  void dispose() {
+    _bubbleAnimationController.dispose();
+    _animationStartController.dispose();
+    super.dispose();
+  }
+
+  Color dx(double percentage) {
+    assert(percentage >= 0 && percentage <= 100);
+    final x = (percentage / 100 * 255).round();
+    final base = widget.color ?? widget.type.color;
+    int r = base.red - x;
+    int g = base.green - x;
+    int b = base.blue - x;
+    if (r < 0) r = 0;
+    if (g < 0) g = 0;
+    if (b < 0) b = 0;
+    return Color.fromARGB(base.alpha, r, g, b);
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isRTL = Directionality.of(context) == TextDirection.rtl;
-
-    final size = MediaQuery.of(context).size;
-
-    // screen dimensions
-    bool isMobile = size.width <= 768;
-    bool isTablet = size.width > 768 && size.width <= 992;
-
-    final hsl = HSLColor.fromColor(color ?? contentType.color!);
-    final hslDark = hsl.withLightness((hsl.lightness - 0.1).clamp(0.0, 1.0));
-
-    double horizontalPadding = 0.0;
-    double leftSpace = size.width * 0.12;
-    double rightSpace = size.width * 0.12;
-
-    if (isMobile) {
-      horizontalPadding = size.width * 0.01;
-    } else if (isTablet) {
-      leftSpace = size.width * 0.05;
-      horizontalPadding = size.width * 0.2;
-    } else {
-      leftSpace = size.width * 0.05;
-      horizontalPadding = size.width * 0.3;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      margin: EdgeInsets.symmetric(
-        horizontal: horizontalPadding,
-      ),
-      height: size.height * 0.125,
-      alignment: Alignment.bottomCenter,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.topCenter,
-        children: [
-          Container(
-            width: size.width,
-            decoration: BoxDecoration(
-              color: color ?? contentType.color,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-              ),
-              child: SvgPicture.asset(
-                _Icons.bubbles,
-                height: size.height * 0.06,
-                width: size.width * 0.05,
-                package: _kPackage,
-                colorFilter: ColorFilter.mode(
-                  hslDark.toColor(),
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: -size.height * 0.02,
-            left: !isRTL
-                ? leftSpace -
-                    8 -
-                    (isMobile ? size.width * 0.075 : size.width * 0.035)
-                : null,
-            right: isRTL
-                ? rightSpace -
-                    8 -
-                    (isMobile ? size.width * 0.075 : size.width * 0.035)
-                : null,
+    return AnimatedBuilder(
+      animation: _startAnimation,
+      builder: (context, child) {
+        return Container(
+          alignment: Alignment(_startAnimation.value ?? 0.0, 0.95),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Material(
+            color: Colors.transparent,
             child: Stack(
-              alignment: Alignment.center,
+              clipBehavior: Clip.none,
               children: [
-                SvgPicture.asset(
-                  _Icons.back,
-                  height: size.height * 0.06,
-                  package: _kPackage,
-                  colorFilter: ColorFilter.mode(
-                    hslDark.toColor(),
-                    BlendMode.srcIn,
+                ClipRRect(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width - 20,
+                    decoration: BoxDecoration(
+                      color: (widget.color ?? widget.type.color),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(20),
+                      ),
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          bottom: -10,
+                          left: -2,
+                          child: CustomPaint(
+                            size: const Size(50, 50),
+                            painter: _BackShape(
+                              color: dx(10),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 20,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(width: 50),
+                              Expanded(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    widget.title ??
+                                        Text(
+                                          widget.titleText ?? widget.type.title,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 24,
+                                          ),
+                                        ),
+                                    const SizedBox(height: 5),
+                                    widget.message ??
+                                        Text(
+                                          widget.messageText ??
+                                              widget.type.message,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                Positioned(
-                  top: size.height * 0.015,
-                  child: SvgPicture.asset(
-                    contentType.icon,
-                    height: size.height * 0.022,
-                    package: _kPackage,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Positioned.fill(
-            left: isRTL ? size.width * 0.03 : leftSpace,
-            right: isRTL ? rightSpace : size.width * 0.03,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: size.height * 0.02,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        title ?? contentType.message,
-                        style: TextStyle(
-                          fontSize: titleFontSize ??
-                              (!isMobile
-                                  ? size.height * 0.03
-                                  : size.height * 0.025),
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                AnimatedBuilder(
+                  animation: _bubbleAnimation,
+                  builder: (context, child) {
+                    return Positioned(
+                      top: -(_bubbleAnimation.value * 10) - 20,
+                      left: 20,
+                      child: Transform(
+                        transform: Matrix4.rotationZ(_bubbleAnimation.value),
+                        alignment: Alignment.center,
+                        child: CustomPaint(
+                          painter: _BubblePainter(
+                            color: dx(10),
+                          ),
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            alignment: Alignment.center,
+                            child: Icon(
+                              widget.type.icon,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        if (inMaterialBanner) {
-                          ScaffoldMessenger.of(context)
-                              .hideCurrentMaterialBanner();
-                          return;
-                        }
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      },
-                      child: SvgPicture.asset(
-                        _Icons.failure,
-                        height: size.height * 0.022,
-                        package: _kPackage,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: size.height * 0.005,
-                ),
-                Expanded(
-                  child: Text(
-                    message,
-                    style: TextStyle(
-                      fontSize: messageFontSize ?? size.height * 0.016,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: size.height * 0.015,
+                    );
+                  },
                 ),
               ],
             ),
-          )
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
-class AndrossyFancySnackBarContent {
-  final String icon;
+class _BubblePainter extends CustomPainter {
+  final Color color;
+
+  _BubblePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Path path_0 = Path();
+    path_0.moveTo(size.width * 0.5000029, size.height * 0.9031579);
+    path_0.cubicTo(
+        size.width * 0.7707800,
+        size.height * 0.9031579,
+        size.width * 0.9902886,
+        size.height * 0.7009789,
+        size.width * 0.9902886,
+        size.height * 0.4515789);
+    path_0.cubicTo(size.width * 0.9902886, size.height * 0.2021789,
+        size.width * 0.7707800, 0, size.width * 0.5000029, 0);
+    path_0.cubicTo(
+        size.width * 0.2292257,
+        0,
+        size.width * 0.009716800,
+        size.height * 0.2021789,
+        size.width * 0.009716800,
+        size.height * 0.4515789);
+    path_0.cubicTo(
+        size.width * 0.009716800,
+        size.height * 0.5920079,
+        size.width * 0.07931071,
+        size.height * 0.7174658,
+        size.width * 0.1884643,
+        size.height * 0.8002895);
+    path_0.cubicTo(
+        size.width * 0.1886386,
+        size.height * 0.8004211,
+        size.width * 0.1884843,
+        size.height * 0.8006776,
+        size.width * 0.1882700,
+        size.height * 0.8006105);
+    path_0.lineTo(size.width * 0.1882700, size.height * 0.8006105);
+    path_0.cubicTo(
+        size.width * 0.1881400,
+        size.height * 0.8005697,
+        size.width * 0.1880029,
+        size.height * 0.8006592,
+        size.width * 0.1880029,
+        size.height * 0.8007868);
+    path_0.lineTo(size.width * 0.1880029, size.height * 0.9408447);
+    path_0.cubicTo(
+        size.width * 0.1880029,
+        size.height * 0.9800447,
+        size.width * 0.2328629,
+        size.height * 1.005488,
+        size.width * 0.2708671,
+        size.height * 0.9878421);
+    path_0.lineTo(size.width * 0.4424600, size.height * 0.9081737);
+    path_0.cubicTo(
+        size.width * 0.4519371,
+        size.height * 0.9037724,
+        size.width * 0.4625543,
+        size.height * 0.9019658,
+        size.width * 0.4731529,
+        size.height * 0.9024921);
+    path_0.cubicTo(
+        size.width * 0.4820429,
+        size.height * 0.9029342,
+        size.width * 0.4909943,
+        size.height * 0.9031579,
+        size.width * 0.5000029,
+        size.height * 0.9031579);
+    path_0.close();
+
+    Paint paint0Fill = Paint()..style = PaintingStyle.fill;
+    paint0Fill.color = color;
+    canvas.drawPath(path_0, paint0Fill);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
+class _BackShape extends CustomPainter {
+  final Color color;
+
+  _BackShape({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint0Fill = Paint()..style = PaintingStyle.fill;
+    paint0Fill.color = color;
+    canvas.drawCircle(Offset(size.width * 0.8609272, size.height * 0.05365854),
+        size.width * 0.07284768, paint0Fill);
+
+    Paint paint1Fill = Paint()..style = PaintingStyle.fill;
+    paint1Fill.color = color;
+    canvas.drawCircle(Offset(size.width * 0.7298344, size.height * 0.2103351),
+        size.width * 0.02754927, paint1Fill);
+
+    Paint paint2Fill = Paint()..style = PaintingStyle.fill;
+    paint2Fill.color = color;
+    canvas.drawCircle(Offset(size.width * 0.3906755, size.height * 0.03304044),
+        size.width * 0.01836616, paint2Fill);
+
+    Path path_3 = Path();
+    path_3.moveTo(size.width * 0.8335828, size.height * 0.3567707);
+    path_3.cubicTo(
+        size.width * 1.039278,
+        size.height * 0.4924732,
+        size.width * 1.056682,
+        size.height * 0.7253073,
+        size.width * 0.8724503,
+        size.height * 0.8768244);
+    path_3.cubicTo(
+        size.width * 0.6882185,
+        size.height * 1.028337,
+        size.width * 0.3721185,
+        size.height * 1.041156,
+        size.width * 0.1664199,
+        size.height * 0.9054537);
+    path_3.cubicTo(
+        size.width * -0.03927907,
+        size.height * 0.7697512,
+        size.width * -0.05668199,
+        size.height * 0.5369171,
+        size.width * 0.1275490,
+        size.height * 0.3854020);
+    path_3.cubicTo(
+        size.width * 0.2159106,
+        size.height * 0.3127327,
+        size.width * 0.3346060,
+        size.height * 0.2719678,
+        size.width * 0.4569073,
+        size.height * 0.2641922);
+    path_3.cubicTo(
+        size.width * 0.4853722,
+        size.height * 0.2623829,
+        size.width * 0.5088384,
+        size.height * 0.2455971,
+        size.width * 0.5087841,
+        size.height * 0.2245522);
+    path_3.lineTo(size.width * 0.5087629, size.height * 0.2163015);
+    path_3.cubicTo(
+        size.width * 0.5087364,
+        size.height * 0.2062137,
+        size.width * 0.4999728,
+        size.height * 0.1975049,
+        size.width * 0.4896424,
+        size.height * 0.1908824);
+    path_3.cubicTo(
+        size.width * 0.4599689,
+        size.height * 0.1718595,
+        size.width * 0.4568497,
+        size.height * 0.1387195,
+        size.width * 0.4826748,
+        size.height * 0.1168624);
+    path_3.cubicTo(
+        size.width * 0.5085007,
+        size.height * 0.09500537,
+        size.width * 0.5534914,
+        size.height * 0.09270780,
+        size.width * 0.5831649,
+        size.height * 0.1117302);
+    path_3.cubicTo(
+        size.width * 0.6128391,
+        size.height * 0.1307532,
+        size.width * 0.6159583,
+        size.height * 0.1638927,
+        size.width * 0.5901325,
+        size.height * 0.1857498);
+    path_3.cubicTo(
+        size.width * 0.5879331,
+        size.height * 0.1876112,
+        size.width * 0.5855947,
+        size.height * 0.1893312,
+        size.width * 0.5831391,
+        size.height * 0.1909078);
+    path_3.cubicTo(
+        size.width * 0.5655967,
+        size.height * 0.2021683,
+        size.width * 0.5468470,
+        size.height * 0.2159220,
+        size.width * 0.5468914,
+        size.height * 0.2330615);
+    path_3.cubicTo(
+        size.width * 0.5469371,
+        size.height * 0.2508473,
+        size.width * 0.5653881,
+        size.height * 0.2655180,
+        size.width * 0.5891517,
+        size.height * 0.2686722);
+    path_3.cubicTo(
+        size.width * 0.6771854,
+        size.height * 0.2803576,
+        size.width * 0.7620596,
+        size.height * 0.3095859,
+        size.width * 0.8335828,
+        size.height * 0.3567707);
+    path_3.close();
+
+    Paint paint3Fill = Paint()..style = PaintingStyle.fill;
+    paint3Fill.color = color;
+    canvas.drawPath(path_3, paint3Fill);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
+enum AndrossySnackBarType {
+  success(
+    title: "Well done!",
+    message: "You successfully read this important message.",
+    icon: Icons.check,
+    color: Color(0xFF09653F),
+  ),
+  error(
+    title: "Oh snap!",
+    message: "Change a few things up and try submitting again.",
+    icon: CupertinoIcons.clear,
+    color: Color(0xffc72c41),
+  ),
+  info(
+    title: "Hi there!",
+    message: "Do you have a problem? Just use the contact form.",
+    icon: CupertinoIcons.question,
+    color: Color(0xFF6353C7),
+  ),
+  warning(
+    title: "Warning!",
+    message: "Sorry! There was a problem with your request.",
+    icon: CupertinoIcons.exclamationmark,
+    color: Color(0xFFA75F40),
+  ),
+  waiting(
+    title: "Waiting!",
+    message: "Please wait for a moment while fetching data.",
+    icon: CupertinoIcons.clock,
+    color: Color(0xFF0B5778),
+  );
+
   final String title;
   final String message;
-  final Color? color;
+  final IconData icon;
+  final Color color;
 
-  const AndrossyFancySnackBarContent({
+  const AndrossySnackBarType({
     required this.title,
     required this.message,
     required this.icon,
-    this.color,
+    required this.color,
   });
-
-  static const info = AndrossyFancySnackBarContent(
-    title: 'Hi there!',
-    message: 'Do you have a problem? Just use the contact form.',
-    icon: _Icons.info,
-    color: _Colors.infoBlue,
-  );
-  static const failure = AndrossyFancySnackBarContent(
-    title: 'Oh snap!',
-    message: 'Change a few things up and try submitting again.',
-    icon: _Icons.failure,
-    color: _Colors.failureRed,
-  );
-  static const success = AndrossyFancySnackBarContent(
-    title: 'Well done!',
-    message: "You successfully read this important message.",
-    icon: _Icons.success,
-    color: _Colors.successGreen,
-  );
-  static const waiting = AndrossyFancySnackBarContent(
-    title: 'Waiting!',
-    message: "Please wait for a moment while fetching data.",
-    icon: _Icons.waiting,
-    color: _Colors.waitingYellow,
-  );
-  static const warning = AndrossyFancySnackBarContent(
-    title: 'Warning!',
-    message: "Sorry! There was a problem with your request.",
-    icon: _Icons.warning,
-    color: _Colors.warningYellow,
-  );
-}
-
-abstract class _Colors {
-  static const Color infoBlue = Color(0xff3282B8);
-
-  static const Color failureRed = Color(0xffc72c41);
-
-  static const Color successGreen = Color(0xff2D6A4F);
-
-  static const Color waitingYellow = Color(0xFF213D4A);
-
-  static const Color warningYellow = Color(0xffFCA652);
-}
-
-abstract class _Icons {
-  static const String info = 'assets/help.svg';
-  static const String failure = 'assets/failure.svg';
-  static const String success = 'assets/success.svg';
-  static const String waiting = 'assets/waiting.svg';
-  static const String warning = 'assets/warning.svg';
-
-  static const String back = 'assets/back.svg';
-  static const String bubbles = 'assets/bubbles.svg';
 }
