@@ -1,3 +1,7 @@
+## 1.0.3
+
+* Androssy animated dialog inserted
+
 ## 1.0.2
 
 * Fancy scan bar update

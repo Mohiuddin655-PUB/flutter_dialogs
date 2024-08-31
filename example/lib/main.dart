@@ -3,63 +3,113 @@ import 'package:flutter_androssy_dialogs/dialogs.dart';
 
 void main() {
   Dialogs.init(
-    alertDialogConfig: (context) => const AlertDialogConfig(
-      positiveButtonTextStyle: TextStyle(
-        color: Colors.orange,
-        fontWeight: FontWeight.bold,
-        fontSize: 18,
-      ),
-      material: false,
-    ),
-    messageDialogConfig: (context) => const MessageDialogConfig(
-      buttonTextStyle: TextStyle(
-        color: Colors.orange,
-        fontWeight: FontWeight.bold,
-        fontSize: 18,
-      ),
-      material: false,
-    ),
-    loadingDialogConfig: (context) => LoadingDialogConfig(
-      loader: Center(
-        child: Container(
-          width: 120,
-          height: 120,
+    alertDialogConfig: AlertDialogConfig(
+      builder: (context, content) {
+        return Container(
+          width: 300,
+          height: 300,
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
             color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
           ),
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      ),
-      material: false,
+          child: Text(content.title ?? "Alert dialog"),
+        );
+      },
     ),
-    snackBarConfig: (context) => const SnackBarConfig(
-      messageStyle: TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
+    messageDialogConfig: MessageDialogConfig(
+      builder: (context, content) => DemoMessage(content: content),
     ),
-    errorSnackBarConfig: (context) => SnackBarConfig(
-      background: Colors.red.withOpacity(0.1),
-      messageStyle: const TextStyle(
-        color: Colors.red,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
+    dialogs: {
+      "custom": DialogConfig(
+        duration: const Duration(seconds: 3),
+        reverseDuration: const Duration(seconds: 3),
+        builder: (context, content) {
+          return Container(
+            width: 200,
+            height: 200,
+            decoration: const BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+          );
+        },
+      )
+    },
+    snackBarConfig: SnackBarConfig(
+      builder: (context, content) => DemoSnackBar(content: content),
     ),
-    warningSnackBarConfig: (context) => SnackBarConfig(
-      background: Colors.orange.withOpacity(0.1),
-      messageStyle: const TextStyle(
-        color: Colors.orange,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
+    errorSnackBarConfig: SnackBarConfig(
+      builder: (context, content) => DemoSnackBar(content: content),
+    ),
+    warningSnackBarConfig: SnackBarConfig(
+      builder: (context, content) => DemoSnackBar(content: content),
+    ),
+    infoSnackBarConfig: SnackBarConfig(
+      builder: (context, content) => DemoSnackBar(content: content),
+    ),
+    waitingSnackBarConfig: SnackBarConfig(
+      builder: (context, content) => DemoSnackBar(content: content),
     ),
   );
   runApp(const MyApp());
+}
+
+class DemoMessage extends StatelessWidget {
+  final MessageDialogContent content;
+
+  const DemoMessage({
+    super.key,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          margin: const EdgeInsets.all(24),
+          alignment: Alignment.center,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            color: Colors.white,
+          ),
+          child: Center(child: Text(content.title ?? "Message")),
+        ),
+      ],
+    );
+  }
+}
+
+class DemoSnackBar extends StatelessWidget {
+  final SnackBarContent content;
+
+  const DemoSnackBar({
+    super.key,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          margin: const EdgeInsets.all(24),
+          alignment: Alignment.center,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            color: Colors.white,
+          ),
+          child: Center(child: Text(content.title ?? "Error snack bar")),
+        ),
+      ],
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -90,6 +140,13 @@ class MyHomePage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            ElevatedButton(
+              onPressed: () {
+                context.show("custom");
+              },
+              child: const Text("Show Custom Dialog"),
+            ),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 context.showAlert(

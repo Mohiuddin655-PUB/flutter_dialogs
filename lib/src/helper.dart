@@ -4,14 +4,30 @@ import '../dialogs.dart';
 
 /// Extension on BuildContext to simplify showing dialogs using the Dialogs class.
 extension DialogsHelper on BuildContext {
+  Future<T?> show<T>(
+    String name, {
+    DialogContent content = const DialogContent(id: "custom"),
+  }) {
+    return Dialogs.i.show(this, name, content: content);
+  }
+
   /// Shows an alert dialog with the provided title and message.
   ///
   /// Example:
   /// ```dart
   /// context.showAlert(title: "Alert", message: "This is an alert!");
   /// ```
-  Future<bool> showAlert({String? title, String? message}) {
-    return Dialogs.i.alert(this, title: title, message: message);
+  Future<bool> showAlert({
+    String? title,
+    String? message,
+    AlertDialogContent content = const AlertDialogContent(),
+  }) {
+    return Dialogs.i.alert(
+      this,
+      title: title,
+      message: message,
+      content: content,
+    );
   }
 
   /// Shows an editable dialog for user input with the provided title, initial text, and hint.
@@ -20,8 +36,21 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showEditor(title: "Edit Text", text: "Initial value", hint: "Enter text here");
   /// ```
-  Future<String> showEditor({String? title, String? text, String? hint}) {
-    return Dialogs.i.editor(this, title: title, text: text, hint: hint);
+  Future<String> showEditor({
+    String? title,
+    String? subtitle,
+    String? hint,
+    String? text,
+    EditableDialogContent content = const EditableDialogContent(),
+  }) {
+    return Dialogs.i.editor(
+      this,
+      title: title,
+      subtitle: subtitle,
+      text: text,
+      hint: hint,
+      content: content,
+    );
   }
 
   /// Shows or hides a loader dialog with an optional loading status.
@@ -31,8 +60,11 @@ extension DialogsHelper on BuildContext {
   /// context.showLoader(); // Show loader
   /// context.showLoader(false); // Hide loader
   /// ```
-  Future<bool> showLoader([bool status = true]) {
-    return Dialogs.i.loader(this, status: status);
+  Future<bool> showLoader({
+    bool status = true,
+    LoadingDialogContent content = const LoadingDialogContent(),
+  }) {
+    return Dialogs.i.loader(this, status: status, content: content);
   }
 
   /// Shows a message dialog with the provided message and optional title.
@@ -41,8 +73,31 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showMessage("Hello World", title: "Greetings");
   /// ```
-  Future<bool> showMessage(String? message, {String? title}) {
-    return Dialogs.i.message(this, message, title: title);
+  Future<bool> showMessage(
+    String? message, {
+    String? title,
+    MessageDialogContent content = const MessageDialogContent(),
+  }) {
+    return Dialogs.i.message(this, message, content: content);
+  }
+
+  /// Shows a Options with the provided some options.
+  ///
+  /// Example:
+  /// ```dart
+  /// context.showOption(["A","B","C"], initialIndex: 1);
+  /// ```
+  Future<T?> showOption<T extends Object?>(
+    List<T> options, {
+    int initialIndex = 0,
+    OptionDialogContent content = const OptionDialogContent(),
+  }) {
+    return Dialogs.i.option(
+      this,
+      options,
+      initialIndex: initialIndex,
+      content: content,
+    );
   }
 
   /// Shows a SnackBar with the provided message.
@@ -51,8 +106,12 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showSnackBar("This is a SnackBar message");
   /// ```
-  void showSnackBar(String? message, {String? title}) {
-    Dialogs.i.snackBar(this, title: title, message: message);
+  Future<bool> showSnackBar(
+    String message, {
+    String? title,
+    SnackBarContent content = const SnackBarContent(),
+  }) {
+    return Dialogs.i.snackBar(this, message, title: title, content: content);
   }
 
   /// Shows an error-themed SnackBar with the provided error message.
@@ -61,18 +120,36 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showErrorSnackBar("An error occurred");
   /// ```
-  void showErrorSnackBar(String? message, {String? title}) {
-    Dialogs.i.snackBarError(this, title: title, message: message);
+  Future<bool> showErrorSnackBar(
+    String message, {
+    String? title,
+    SnackBarContent content = const SnackBarContent(id: "error_snack_bar"),
+  }) {
+    return Dialogs.i.snackBarError(
+      this,
+      message,
+      title: title,
+      content: content,
+    );
   }
 
   /// Shows a warning-themed SnackBar with the provided warning message.
   ///
   /// Example:
   /// ```dart
-  /// context.showWarningSnackBar("This is a info message");
+  /// context.showInfoSnackBar("This is a info message");
   /// ```
-  void showInfoSnackBar(String? message, {String? title}) {
-    Dialogs.i.snackBarInfo(this, title: title, message: message);
+  Future<bool> showInfoSnackBar(
+    String message, {
+    String? title,
+    SnackBarContent content = const SnackBarContent(id: "info_snack_bar"),
+  }) {
+    return Dialogs.i.snackBarInfo(
+      this,
+      message,
+      title: title,
+      content: content,
+    );
   }
 
   /// Shows a warning-themed SnackBar with the provided warning message.
@@ -81,8 +158,17 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showWaitingSnackBar("This is a waiting message");
   /// ```
-  void showWaitingSnackBar(String? message, {String? title}) {
-    Dialogs.i.snackBarWaiting(this, title: title, message: message);
+  Future<bool> showWaitingSnackBar(
+    String message, {
+    String? title,
+    SnackBarContent content = const SnackBarContent(id: "waiting_snack_bar"),
+  }) {
+    return Dialogs.i.snackBarWaiting(
+      this,
+      message,
+      title: title,
+      content: content,
+    );
   }
 
   /// Shows a warning-themed SnackBar with the provided warning message.
@@ -91,7 +177,16 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showWarningSnackBar("This is a warning message");
   /// ```
-  void showWarningSnackBar(String? message, {String? title}) {
-    Dialogs.i.snackBarWarning(this, title: title, message: message);
+  Future<bool> showWarningSnackBar(
+    String message, {
+    String? title,
+    SnackBarContent content = const SnackBarContent(id: "warning_snack_bar"),
+  }) {
+    return Dialogs.i.snackBarWarning(
+      this,
+      message,
+      title: title,
+      content: content,
+    );
   }
 }
