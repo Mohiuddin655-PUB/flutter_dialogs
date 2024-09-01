@@ -60,10 +60,10 @@ extension DialogsHelper on BuildContext {
   /// context.showLoader(); // Show loader
   /// context.showLoader(false); // Hide loader
   /// ```
-  Future<bool> showLoader({
+  Future<bool> showLoader([
     bool status = true,
     LoadingDialogContent content = const LoadingDialogContent(),
-  }) {
+  ]) {
     return Dialogs.i.loader(this, status: status, content: content);
   }
 
@@ -78,7 +78,7 @@ extension DialogsHelper on BuildContext {
     String? title,
     MessageDialogContent content = const MessageDialogContent(),
   }) {
-    return Dialogs.i.message(this, message, content: content);
+    return Dialogs.i.message(this, message, title: title, content: content);
   }
 
   /// Shows a Options with the provided some options.

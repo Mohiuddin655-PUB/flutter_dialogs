@@ -5,21 +5,26 @@ import '../dialogs.dart';
 
 part 'configs.dart';
 
+// Typedef for building dialog configurations dynamically
+typedef DialogConfigBuilder<T extends DialogConfig> = T Function(
+  BuildContext context,
+);
+
 // Class for managing various types of dialogs and snack bars
 class Dialogs {
   final Map<String, dynamic> _tags = {};
-  final Map<String, DialogConfig> configs = {};
+  final Map<String, DialogConfigBuilder<DialogConfig>> configs = {};
 
-  AlertDialogConfig? alertDialogConfig;
-  EditableDialogConfig? editableDialogConfig;
-  LoadingDialogConfig? loadingDialogConfig;
-  MessageDialogConfig? messageDialogConfig;
-  OptionDialogConfig? optionDialogConfig;
-  SnackBarConfig? snackBarConfig;
-  SnackBarConfig? errorSnackBarConfig;
-  SnackBarConfig? infoSnackBarConfig;
-  SnackBarConfig? waitingSnackBarConfig;
-  SnackBarConfig? warningSnackBarConfig;
+  DialogConfigBuilder<AlertDialogConfig>? alertDialogConfig;
+  DialogConfigBuilder<EditableDialogConfig>? editableDialogConfig;
+  DialogConfigBuilder<LoadingDialogConfig>? loadingDialogConfig;
+  DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig;
+  DialogConfigBuilder<OptionDialogConfig>? optionDialogConfig;
+  DialogConfigBuilder<SnackBarConfig>? snackBarConfig;
+  DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig;
+  DialogConfigBuilder<SnackBarConfig>? infoSnackBarConfig;
+  DialogConfigBuilder<SnackBarConfig>? waitingSnackBarConfig;
+  DialogConfigBuilder<SnackBarConfig>? warningSnackBarConfig;
 
   Dialogs._();
 
@@ -29,17 +34,17 @@ class Dialogs {
 
   // Initialize the dialog configurations
   static Dialogs init({
-    AlertDialogConfig? alertDialogConfig,
-    EditableDialogConfig? editableDialogConfig,
-    LoadingDialogConfig? loadingDialogConfig,
-    MessageDialogConfig? messageDialogConfig,
-    OptionDialogConfig? optionDialogConfig,
-    SnackBarConfig? snackBarConfig,
-    SnackBarConfig? errorSnackBarConfig,
-    SnackBarConfig? infoSnackBarConfig,
-    SnackBarConfig? waitingSnackBarConfig,
-    SnackBarConfig? warningSnackBarConfig,
-    Map<String, DialogConfig> dialogs = const {},
+    DialogConfigBuilder<AlertDialogConfig>? alertDialogConfig,
+    DialogConfigBuilder<EditableDialogConfig>? editableDialogConfig,
+    DialogConfigBuilder<LoadingDialogConfig>? loadingDialogConfig,
+    DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig,
+    DialogConfigBuilder<OptionDialogConfig>? optionDialogConfig,
+    DialogConfigBuilder<SnackBarConfig>? snackBarConfig,
+    DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig,
+    DialogConfigBuilder<SnackBarConfig>? infoSnackBarConfig,
+    DialogConfigBuilder<SnackBarConfig>? waitingSnackBarConfig,
+    DialogConfigBuilder<SnackBarConfig>? warningSnackBarConfig,
+    Map<String, DialogConfigBuilder<DialogConfig>> configs = const {},
   }) {
     i.alertDialogConfig = alertDialogConfig ?? i.alertDialogConfig;
     i.editableDialogConfig = editableDialogConfig ?? i.editableDialogConfig;
@@ -51,15 +56,16 @@ class Dialogs {
     i.infoSnackBarConfig = infoSnackBarConfig ?? i.infoSnackBarConfig;
     i.waitingSnackBarConfig = waitingSnackBarConfig ?? i.waitingSnackBarConfig;
     i.warningSnackBarConfig = warningSnackBarConfig ?? i.warningSnackBarConfig;
-    i.configs.addAll(dialogs);
+    i.configs.addAll(configs);
     return i;
   }
 
   Future<T?> _show<T, Content extends DialogContent>({
     required BuildContext context,
     required Content content,
-    required DialogConfig<Content> config,
+    required DialogConfigBuilder<DialogConfig<Content>> configBuilder,
   }) {
+    final config = configBuilder(context);
     Widget dialog = config.builder(context, content);
     if (config.animated) {
       dialog = AndrossyDialog.animated(
@@ -114,8 +120,8 @@ class Dialogs {
     String name, {
     DialogContent content = const DialogContent(id: "custom"),
   }) {
-    final config = configs[name];
-    if (config == null) {
+    final configBuilder = configs[name];
+    if (configBuilder == null) {
       final names = name.split("_").join(" ");
       final first = names.characters.firstOrNull?.toUpperCase() ?? "";
       final last = names.substring(1);
@@ -126,7 +132,7 @@ class Dialogs {
     return _show(
       context: context,
       content: content.copy(id: content.id == "dialog" ? "custom" : null),
-      config: config,
+      configBuilder: configBuilder,
     );
   }
 
@@ -147,7 +153,7 @@ class Dialogs {
     }
     return _show(
       context: context,
-      config: alertDialogConfig!,
+      configBuilder: alertDialogConfig!,
       content: content.copy(title: title, body: message),
     ).onError((_, __) => null).then((_) => _ is bool ? _ : false);
   }
@@ -171,7 +177,7 @@ class Dialogs {
     }
     return _show(
       context: context,
-      config: editableDialogConfig!,
+      configBuilder: editableDialogConfig!,
       content: content.copy(
         title: title,
         body: subtitle,
@@ -211,7 +217,7 @@ class Dialogs {
       return _show(
         context: context,
         content: content,
-        config: loadingDialogConfig!,
+        configBuilder: loadingDialogConfig!,
       ).onError((_, __) => null).then((value) {
         _tags.remove(content.id);
         return value is bool ? value : false;
@@ -248,7 +254,7 @@ class Dialogs {
       return _show(
         context: context,
         content: content.copy(body: message, title: title),
-        config: messageDialogConfig!,
+        configBuilder: messageDialogConfig!,
       ).onError((_, __) => null).then((_) {
         _tags.remove(content.id);
         return _ is bool ? _ : false;
@@ -270,7 +276,7 @@ class Dialogs {
     return _show(
       context: context,
       content: content.copy(options: options, initialIndex: initialIndex),
-      config: optionDialogConfig!,
+      configBuilder: optionDialogConfig!,
     ).onError((_, __) => null).then((_) {
       return _ is T ? _ : null;
     });
@@ -280,9 +286,9 @@ class Dialogs {
   Future<bool> _snackBar(
     BuildContext context,
     SnackBarContent content,
-    SnackBarConfig? config,
+    DialogConfigBuilder<SnackBarConfig>? configBuilder,
   ) {
-    if (config == null) {
+    if (configBuilder == null) {
       final names = content.id.split("_").join(" ");
       final first = names.characters.firstOrNull?.toUpperCase() ?? "";
       final last = names.substring(1);
@@ -296,7 +302,7 @@ class Dialogs {
       return _show(
         context: context,
         content: content,
-        config: config,
+        configBuilder: configBuilder,
       ).onError((_, __) => null).then((_) {
         _tags.remove(content.id);
         return _ is bool ? _ : false;

@@ -3,53 +3,81 @@ import 'package:flutter_androssy_dialogs/dialogs.dart';
 
 void main() {
   Dialogs.init(
-    alertDialogConfig: AlertDialogConfig(
-      builder: (context, content) {
-        return Container(
-          width: 300,
-          height: 300,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            color: Colors.white,
-          ),
-          child: Text(content.title ?? "Alert dialog"),
-        );
-      },
-    ),
-    messageDialogConfig: MessageDialogConfig(
-      builder: (context, content) => DemoMessage(content: content),
-    ),
-    dialogs: {
-      "custom": DialogConfig(
-        duration: const Duration(seconds: 3),
-        reverseDuration: const Duration(seconds: 3),
+    alertDialogConfig: (context) {
+      return AlertDialogConfig(
         builder: (context, content) {
           return Container(
-            width: 200,
-            height: 200,
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              color: Colors.white,
             ),
+            child: Text(content.title ?? "Alert dialog"),
           );
         },
-      )
+      );
     },
-    snackBarConfig: SnackBarConfig(
-      builder: (context, content) => DemoSnackBar(content: content),
-    ),
-    errorSnackBarConfig: SnackBarConfig(
-      builder: (context, content) => DemoSnackBar(content: content),
-    ),
-    warningSnackBarConfig: SnackBarConfig(
-      builder: (context, content) => DemoSnackBar(content: content),
-    ),
-    infoSnackBarConfig: SnackBarConfig(
-      builder: (context, content) => DemoSnackBar(content: content),
-    ),
-    waitingSnackBarConfig: SnackBarConfig(
-      builder: (context, content) => DemoSnackBar(content: content),
-    ),
+    messageDialogConfig: (context) {
+      return MessageDialogConfig(
+        builder: (context, content) {
+          return DemoMessage(content: content);
+        },
+      );
+    },
+    configs: {
+      "custom": (context) {
+        return DialogConfig(
+          duration: const Duration(seconds: 3),
+          reverseDuration: const Duration(seconds: 3),
+          builder: (context, content) {
+            return Container(
+              width: 200,
+              height: 200,
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            );
+          },
+        );
+      }
+    },
+    snackBarConfig: (context) {
+      return SnackBarConfig(
+        builder: (context, content) {
+          return DemoSnackBar(content: content);
+        },
+      );
+    },
+    errorSnackBarConfig: (context) {
+      return SnackBarConfig(
+        builder: (context, content) {
+          return DemoSnackBar(content: content);
+        },
+      );
+    },
+    warningSnackBarConfig: (context) {
+      return SnackBarConfig(
+        builder: (context, content) {
+          return DemoSnackBar(content: content);
+        },
+      );
+    },
+    infoSnackBarConfig: (context) {
+      return SnackBarConfig(
+        builder: (context, content) {
+          return DemoSnackBar(content: content);
+        },
+      );
+    },
+    waitingSnackBarConfig: (context) {
+      return SnackBarConfig(
+        builder: (context, content) {
+          return DemoSnackBar(content: content);
+        },
+      );
+    },
   );
   runApp(const MyApp());
 }
