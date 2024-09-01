@@ -170,7 +170,23 @@ class MyHomePage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                context.show("custom");
+                Widget child = Container(
+                  width: double.infinity,
+                  height: 500,
+                  color: Colors.white,
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.dismiss();
+                    },
+                    child: Text("Close"),
+                  ),
+                );
+                AndrossyDialog.show(
+                  context: context,
+                  position: AndrossyDialogPosition.left,
+                  content: child,
+                );
               },
               child: const Text("Show Custom Dialog"),
             ),

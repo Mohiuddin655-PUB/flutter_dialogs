@@ -115,6 +115,8 @@ class Dialogs {
     );
   }
 
+  void dismiss() => AndrossyDialog.dismiss();
+
   Future<T?> show<T>(
     BuildContext context,
     String name, {

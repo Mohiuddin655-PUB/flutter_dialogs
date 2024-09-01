@@ -1,3 +1,7 @@
+## 1.0.6
+
+* Dialog dismiss animation supported [Navigator.pop() to AndrossyDialog.dismiss()]
+
 ## 1.0.5
 
 * DialogConfigBuilder supported

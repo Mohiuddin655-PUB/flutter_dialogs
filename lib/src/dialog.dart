@@ -9,6 +9,23 @@ const double _closeProgressThreshold = 0.5;
 
 const Curve _curve = Cubic(0.0, 0.0, 0.2, 1.0);
 
+final Set<_Scope> _scopes = {};
+
+class _Scope {
+  final AndrossyDialogState state;
+
+  const _Scope(this.state);
+
+  @override
+  int get hashCode => state.hashCode;
+
+  @override
+  bool operator ==(Object other) => hashCode == other.hashCode;
+
+  @override
+  String toString() => "$_Scope#$hashCode";
+}
+
 enum AndrossyDialogPosition {
   top(0, -1),
   bottom(0, 1),
@@ -181,6 +198,8 @@ class AndrossyDialog extends StatefulWidget {
     );
   }
 
+  static void dismiss() => _scopes.lastOrNull?.state.dismiss();
+
   @override
   State<AndrossyDialog> createState() => AndrossyDialogState();
 }
@@ -210,7 +229,7 @@ class AndrossyDialogState extends State<AndrossyDialog>
 
   Size childDimension = Size.zero;
 
-  void _childHeight(_) {
+  void _childHeight() {
     final box = _childKey.currentContext?.findRenderObject();
     if (box is RenderBox) {
       childDimension = box.size;
@@ -223,7 +242,10 @@ class AndrossyDialogState extends State<AndrossyDialog>
   void initState() {
     super.initState();
     if (!widget.position.isCenter) {
-      WidgetsBinding.instance.addPostFrameCallback(_childHeight);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scopes.add(_Scope(this));
+        _childHeight();
+      });
     }
     if (isBarrierAnimationMode) {
       controller.forward();
@@ -239,6 +261,7 @@ class AndrossyDialogState extends State<AndrossyDialog>
       _dismissTimer?.cancel();
       controller.dispose();
     }
+    _scopes.remove(_Scope(this));
     super.dispose();
   }
 
@@ -246,7 +269,7 @@ class AndrossyDialogState extends State<AndrossyDialog>
     if (isDisposeTimerMode) {
       _dismissTimer = Timer(
         widget.displayDuration! + (widget.duration ?? Duration.zero),
-        _dismiss,
+        dismiss,
       );
     }
   }
@@ -263,7 +286,8 @@ class AndrossyDialogState extends State<AndrossyDialog>
     }
   }
 
-  void _dismiss() {
+  void dismiss() {
+    if (!mounted) return;
     if (isBarrierAnimationMode) {
       controller.reverse();
     } else {
@@ -346,7 +370,7 @@ class AndrossyDialogState extends State<AndrossyDialog>
 
     if (widget.barrierDismissible) {
       child = GestureDetector(
-        onTap: _dismiss,
+        onTap: dismiss,
         child: child,
       );
     }
