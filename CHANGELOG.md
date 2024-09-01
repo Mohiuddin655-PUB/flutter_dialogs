@@ -1,3 +1,7 @@
+## 1.0.8
+
+* Fancy snack bar slide animation replaced
+
 ## 1.0.7
 
 * Feedback supported [AndrossyDialog.dismiss("this is feedback data")]

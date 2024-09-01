@@ -7,7 +7,7 @@ class AndrossyFancySnackBar extends StatefulWidget {
   final double duration;
   final Widget? title;
   final String? titleText;
-  final AndrossySnackBarType type;
+  final AndrossyFancySnackBarType type;
   final Widget? message;
   final String? messageText;
   final Color? color;
@@ -21,7 +21,7 @@ class AndrossyFancySnackBar extends StatefulWidget {
     this.messageText,
     this.message,
     this.duration = 3,
-    this.type = AndrossySnackBarType.success,
+    this.type = AndrossyFancySnackBarType.success,
     this.color,
   });
 
@@ -34,7 +34,7 @@ class AndrossyFancySnackBar extends StatefulWidget {
     double reverseAnimationDuration = 0.3,
     String? titleText,
     Widget? title,
-    AndrossySnackBarType type = AndrossySnackBarType.success,
+    AndrossyFancySnackBarType type = AndrossyFancySnackBarType.success,
     String? messageText,
     Widget? message,
   }) async {
@@ -65,32 +65,12 @@ class AndrossyFancySnackBar extends StatefulWidget {
 
 class _AndrossyFancySnackBarState extends State<AndrossyFancySnackBar>
     with TickerProviderStateMixin {
-  late AnimationController _animationStartController;
-  late Animation _startAnimation;
   late AnimationController _bubbleAnimationController;
   late Animation _bubbleAnimation;
 
   @override
   void initState() {
     super.initState();
-
-    _animationStartController = AnimationController(
-      vsync: this,
-      duration: Duration(
-        milliseconds: (widget.animationDuration * 1000).toInt(),
-      ),
-      reverseDuration: Duration(
-        milliseconds: (widget.animationDuration * 1000).toInt(),
-      ),
-    );
-
-    _startAnimation = Tween<double>(begin: -60.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _animationStartController,
-        curve: Curves.bounceInOut,
-      ),
-    );
-
     _bubbleAnimationController = AnimationController(
       vsync: this,
       duration: Duration(
@@ -109,24 +89,11 @@ class _AndrossyFancySnackBarState extends State<AndrossyFancySnackBar>
     );
 
     _bubbleAnimationController.repeat(reverse: true);
-
-    _animationStartController.forward().then((value) async {
-      double displayDuration = widget.duration -
-          (widget.animationDuration + widget.reverseAnimationDuration);
-
-      await Future.delayed(
-        Duration(
-          milliseconds: (displayDuration * 1000).toInt(),
-        ),
-      ).then((value) => _animationStartController.reverse());
-      _bubbleAnimationController.stop();
-    });
   }
 
   @override
   void dispose() {
     _bubbleAnimationController.dispose();
-    _animationStartController.dispose();
     super.dispose();
   }
 
@@ -145,120 +112,113 @@ class _AndrossyFancySnackBarState extends State<AndrossyFancySnackBar>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _startAnimation,
-      builder: (context, child) {
-        return Container(
-          alignment: Alignment(_startAnimation.value ?? 0.0, 0.95),
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Material(
-            color: Colors.transparent,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                ClipRRect(
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(20),
+              ),
+              child: Container(
+                width: MediaQuery.of(context).size.width - 20,
+                decoration: BoxDecoration(
+                  color: (widget.color ?? widget.type.color),
                   borderRadius: const BorderRadius.all(
                     Radius.circular(20),
                   ),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 20,
-                    decoration: BoxDecoration(
-                      color: (widget.color ?? widget.type.color),
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(20),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: -10,
+                      left: -2,
+                      child: CustomPaint(
+                        size: const Size(50, 50),
+                        painter: _BackShape(
+                          color: dx(10),
+                        ),
                       ),
                     ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          bottom: -10,
-                          left: -2,
-                          child: CustomPaint(
-                            size: const Size(50, 50),
-                            painter: _BackShape(
-                              color: dx(10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 20,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(width: 50),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                widget.title ??
+                                    Text(
+                                      widget.titleText ?? widget.type.title,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 24,
+                                      ),
+                                    ),
+                                const SizedBox(height: 5),
+                                widget.message ??
+                                    Text(
+                                      widget.messageText ?? widget.type.message,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                              ],
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedBuilder(
+              animation: _bubbleAnimation,
+              builder: (context, child) {
+                return Positioned(
+                  top: -(_bubbleAnimation.value * 10) - 20,
+                  left: 20,
+                  child: Transform(
+                    transform: Matrix4.rotationZ(_bubbleAnimation.value),
+                    alignment: Alignment.center,
+                    child: CustomPaint(
+                      painter: _BubblePainter(
+                        color: dx(10),
+                      ),
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          widget.type.icon,
+                          color: Colors.white,
+                          size: 24,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 20,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(width: 50),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    widget.title ??
-                                        Text(
-                                          widget.titleText ?? widget.type.title,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 24,
-                                          ),
-                                        ),
-                                    const SizedBox(height: 5),
-                                    widget.message ??
-                                        Text(
-                                          widget.messageText ??
-                                              widget.type.message,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-                AnimatedBuilder(
-                  animation: _bubbleAnimation,
-                  builder: (context, child) {
-                    return Positioned(
-                      top: -(_bubbleAnimation.value * 10) - 20,
-                      left: 20,
-                      child: Transform(
-                        transform: Matrix4.rotationZ(_bubbleAnimation.value),
-                        alignment: Alignment.center,
-                        child: CustomPaint(
-                          painter: _BubblePainter(
-                            color: dx(10),
-                          ),
-                          child: Container(
-                            height: 40,
-                            width: 40,
-                            alignment: Alignment.center,
-                            child: Icon(
-                              widget.type.icon,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                );
+              },
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }
@@ -475,7 +435,7 @@ class _BackShape extends CustomPainter {
   }
 }
 
-enum AndrossySnackBarType {
+enum AndrossyFancySnackBarType {
   success(
     title: "Well done!",
     message: "You successfully read this important message.",
@@ -512,7 +472,7 @@ enum AndrossySnackBarType {
   final IconData icon;
   final Color color;
 
-  const AndrossySnackBarType({
+  const AndrossyFancySnackBarType({
     required this.title,
     required this.message,
     required this.icon,
