@@ -195,10 +195,11 @@ class AndrossyDialog extends StatefulWidget {
           child: content,
         );
       },
-    );
+    ).onError((_, __) => null).then((v) => v is T ? v : null);
   }
 
-  static void dismiss() => _scopes.lastOrNull?.state.dismiss();
+  static void dismiss<T extends Object?>() =>
+      _scopes.lastOrNull?.state.dismiss();
 
   @override
   State<AndrossyDialog> createState() => AndrossyDialogState();
@@ -282,16 +283,19 @@ class AndrossyDialogState extends State<AndrossyDialog>
 
   void _status(AnimationStatus status) {
     if (status.isDismissed) {
-      Navigator.pop(context);
+      Navigator.pop(context, _result);
     }
   }
 
-  void dismiss() {
+  Object? _result;
+
+  void dismiss([Object? result]) {
     if (!mounted) return;
     if (isBarrierAnimationMode) {
+      _result = result;
       controller.reverse();
     } else {
-      Navigator.pop(context);
+      Navigator.pop(context, result);
     }
   }
 
