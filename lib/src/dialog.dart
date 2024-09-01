@@ -198,8 +198,9 @@ class AndrossyDialog extends StatefulWidget {
     ).onError((_, __) => null).then((v) => v is T ? v : null);
   }
 
-  static void dismiss<T extends Object?>() =>
-      _scopes.lastOrNull?.state.dismiss();
+  static void dismiss([Object? result]) {
+    _scopes.lastOrNull?.state.dismiss(result);
+  }
 
   @override
   State<AndrossyDialog> createState() => AndrossyDialogState();

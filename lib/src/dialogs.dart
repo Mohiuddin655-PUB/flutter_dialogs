@@ -115,7 +115,7 @@ class Dialogs {
     );
   }
 
-  void dismiss() => AndrossyDialog.dismiss();
+  void dismiss([Object? result]) => AndrossyDialog.dismiss(result);
 
   Future<T?> show<T>(
     BuildContext context,

@@ -11,7 +11,7 @@ extension DialogsHelper on BuildContext {
     return Dialogs.i.show(this, name, content: content);
   }
 
-  void dismiss() => Dialogs.i.dismiss();
+  void dismiss([Object? result]) => Dialogs.i.dismiss(result);
 
   /// Shows an alert dialog with the provided title and message.
   ///

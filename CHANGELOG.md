@@ -1,4 +1,9 @@
+## 1.0.7
+
+* Feedback supported [AndrossyDialog.dismiss("this is feedback data")]
+
 ## 1.0.6+1
+
 ## 1.0.6
 
 * Dialog dismiss animation supported [Navigator.pop() to AndrossyDialog.dismiss()]
