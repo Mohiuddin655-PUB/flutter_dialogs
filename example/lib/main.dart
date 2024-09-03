@@ -184,7 +184,7 @@ class MyHomePage extends StatelessWidget {
                 );
                 AndrossyDialog.show(
                   context: context,
-                  position: AndrossyDialogPosition.left,
+                  position: AndrossyDialogPosition.center,
                   content: child,
                 );
               },

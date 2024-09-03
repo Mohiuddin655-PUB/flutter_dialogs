@@ -151,16 +151,17 @@ class AndrossyDialog extends StatefulWidget {
   static Future<T?> show<T>({
     required BuildContext context,
     required Widget content,
+    bool material = true,
     bool animated = true,
-    Duration? autoDisposeDuration,
     bool barrierDismissible = true,
     double barrierBlurSigma = 5.0,
     Color? barrierColor,
     String? barrierLabel,
-    Curve? barrierAnimationCurve,
-    Curve? barrierReserveAnimationCurve,
+    Curve? curve,
+    Curve? reverseCurve,
     Duration? duration,
-    Duration? reserveDuration,
+    Duration? reverseDuration,
+    Duration? displayDuration,
     bool useSafeArea = false,
     bool useRootNavigator = true,
     RouteSettings? routeSettings,
@@ -169,32 +170,43 @@ class AndrossyDialog extends StatefulWidget {
     AndrossyDialogTransitionBuilder? transitionBuilder,
     TraversalEdgeBehavior? traversalEdgeBehavior,
   }) {
-    return showAdaptiveDialog(
+    content = AndrossyDialog._(
+      animated: animated,
+      displayDuration: displayDuration,
+      barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      barrierBlurSigma: barrierBlurSigma,
+      curve: curve,
+      reverseCurve: reverseCurve,
+      duration: duration,
+      reverseDuration: reverseDuration,
+      position: position,
+      transitionBuilder: transitionBuilder,
+      child: content,
+    );
+
+    if (material) {
+      return showAdaptiveDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: Colors.transparent,
+        barrierLabel: barrierLabel,
+        useRootNavigator: useRootNavigator,
+        useSafeArea: useSafeArea,
+        routeSettings: routeSettings,
+        anchorPoint: anchorPoint,
+        traversalEdgeBehavior: traversalEdgeBehavior,
+        builder: (_) => content,
+      ).onError((_, __) => null).then((v) => v is T ? v : null);
+    }
+    return showCupertinoDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.transparent,
       barrierLabel: barrierLabel,
       useRootNavigator: useRootNavigator,
-      useSafeArea: useSafeArea,
       routeSettings: routeSettings,
       anchorPoint: anchorPoint,
-      traversalEdgeBehavior: traversalEdgeBehavior,
-      builder: (context) {
-        return AndrossyDialog._(
-          animated: animated,
-          displayDuration: autoDisposeDuration,
-          barrierDismissible: barrierDismissible,
-          barrierColor: barrierColor,
-          barrierBlurSigma: barrierBlurSigma,
-          curve: barrierAnimationCurve,
-          reverseCurve: barrierReserveAnimationCurve,
-          duration: duration,
-          reverseDuration: reserveDuration,
-          position: position,
-          transitionBuilder: transitionBuilder,
-          child: content,
-        );
-      },
+      builder: (_) => content,
     ).onError((_, __) => null).then((v) => v is T ? v : null);
   }
 
@@ -243,17 +255,15 @@ class AndrossyDialogState extends State<AndrossyDialog>
   @override
   void initState() {
     super.initState();
-    if (!widget.position.isCenter) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scopes.add(_Scope(this));
-        _childHeight();
-      });
-    }
     if (isBarrierAnimationMode) {
       controller.forward();
       controller.addStatusListener(_status);
     }
-    _startDisplayTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scopes.add(_Scope(this));
+      _childHeight();
+      _startDisplayTimer();
+    });
   }
 
   @override

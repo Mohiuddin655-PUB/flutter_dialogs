@@ -1,3 +1,7 @@
+## 1.0.9
+
+* Feedback system update
+
 ## 1.0.8
 
 * Fancy snack bar slide animation replaced

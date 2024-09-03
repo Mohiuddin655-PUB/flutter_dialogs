@@ -66,56 +66,33 @@ class Dialogs {
     required DialogConfigBuilder<DialogConfig<Content>> configBuilder,
   }) {
     final config = configBuilder(context);
-    Widget dialog = config.builder(context, content);
-    if (config.animated) {
-      dialog = AndrossyDialog.animated(
-        barrierDismissible: config.barrierDismissible,
-        barrierColor: config.barrierColor,
-        barrierBlurSigma: config.barrierBlurSigma,
-        curve: config.curve,
-        reverseCurve: config.reverseCurve,
-        displayDuration: config.displayDuration,
-        duration: config.duration,
-        reverseDuration: config.reverseDuration,
-        position: config.position,
-        transitionBuilder: config.transitionBuilder,
-        child: dialog,
-      );
-    } else {
-      dialog = AndrossyDialog(
-        barrierDismissible: config.barrierDismissible,
-        barrierColor: config.barrierColor,
-        barrierBlurSigma: config.barrierBlurSigma,
-        displayDuration: config.displayDuration,
-        child: dialog,
-      );
-    }
-    if (config.material) {
-      return showAdaptiveDialog(
-        context: context,
-        barrierDismissible: false,
-        barrierColor: Colors.transparent,
-        barrierLabel: config.barrierLabel,
-        useRootNavigator: config.useRootNavigator,
-        useSafeArea: config.useSafeArea,
-        routeSettings: config.routeSettings,
-        anchorPoint: config.anchorPoint,
-        traversalEdgeBehavior: config.traversalEdgeBehavior,
-        builder: (_) => dialog,
-      );
-    }
-    return showCupertinoDialog(
+    return AndrossyDialog.show(
       context: context,
-      barrierDismissible: false,
-      barrierLabel: config.barrierLabel,
-      useRootNavigator: config.useRootNavigator,
-      routeSettings: config.routeSettings,
       anchorPoint: config.anchorPoint,
-      builder: (_) => dialog,
+      routeSettings: config.routeSettings,
+      traversalEdgeBehavior: config.traversalEdgeBehavior,
+      useRootNavigator: config.useRootNavigator,
+      useSafeArea: config.useSafeArea,
+      animated: config.animated,
+      material: config.material,
+      barrierDismissible: config.barrierDismissible,
+      barrierColor: config.barrierColor,
+      barrierBlurSigma: config.barrierBlurSigma,
+      barrierLabel: config.barrierLabel,
+      curve: config.curve,
+      reverseCurve: config.reverseCurve,
+      displayDuration: config.displayDuration,
+      duration: config.duration,
+      reverseDuration: config.reverseDuration,
+      position: config.position,
+      transitionBuilder: config.transitionBuilder,
+      content: config.builder(context, content),
     );
   }
 
-  void dismiss([Object? result]) => AndrossyDialog.dismiss(result);
+  void dismiss([Object? result]) {
+    AndrossyDialog.dismiss(result);
+  }
 
   Future<T?> show<T>(
     BuildContext context,
