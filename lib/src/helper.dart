@@ -87,16 +87,16 @@ extension DialogsHelper on BuildContext {
   ///
   /// Example:
   /// ```dart
-  /// context.showOption(["A","B","C"], initialIndex: 1);
+  /// context.showOptions(options: ["A","B","C"], initialIndex: 1);
   /// ```
-  Future<T?> showOption<T extends Object?>(
-    List<T> options, {
+  Future<int> showOptions<T extends Object?>({
     int initialIndex = 0,
+    List<String>? options,
     OptionDialogContent content = const OptionDialogContent(),
   }) {
-    return Dialogs.i.option(
+    return Dialogs.i.options(
       this,
-      options,
+      options: options,
       initialIndex: initialIndex,
       content: content,
     );

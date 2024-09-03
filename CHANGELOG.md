@@ -1,3 +1,7 @@
+## 1.0.9+1
+
+* Option only return selection index or default index
+
 ## 1.0.9
 
 * Feedback system update

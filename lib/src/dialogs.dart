@@ -243,10 +243,10 @@ class Dialogs {
     }
   }
 
-  Future<T?> option<T extends Object?>(
-    BuildContext context,
-    List<T> options, {
+  Future<int> options(
+    BuildContext context, {
     int initialIndex = 0,
+    List<String>? options,
     OptionDialogContent content = const OptionDialogContent(),
   }) {
     if (optionDialogConfig == null) {
@@ -257,7 +257,7 @@ class Dialogs {
       content: content.copy(options: options, initialIndex: initialIndex),
       configBuilder: optionDialogConfig!,
     ).onError((_, __) => null).then((_) {
-      return _ is T ? _ : null;
+      return _ is int ? _ : initialIndex;
     });
   }
 
