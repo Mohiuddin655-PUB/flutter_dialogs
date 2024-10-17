@@ -206,6 +206,7 @@ class Dialogs {
       context: context,
       configBuilder: editableSheetConfig!,
       content: content.copy(
+        id: "${content.id}_sheet",
         titleText: title,
         bodyText: subtitle,
         text: text,
@@ -295,6 +296,8 @@ class Dialogs {
     BuildContext context, {
     int initialIndex = 0,
     List<String>? options,
+    String? title,
+    String? subtitle,
     OptionDialogContent content = const OptionDialogContent(),
   }) {
     if (optionDialogConfig == null) {
@@ -302,7 +305,12 @@ class Dialogs {
     }
     return _show(
       context: context,
-      content: content.copy(options: options, initialIndex: initialIndex),
+      content: content.copy(
+        options: options,
+        initialIndex: initialIndex,
+        titleText: title,
+        bodyText: subtitle,
+      ),
       configBuilder: optionDialogConfig!,
     ).onError((_, __) => null).then((_) {
       return _ is int ? _ : initialIndex;
@@ -313,6 +321,8 @@ class Dialogs {
     BuildContext context, {
     int initialIndex = 0,
     List<String>? options,
+    String? title,
+    String? subtitle,
     OptionDialogContent content = const OptionDialogContent(),
   }) {
     if (optionSheetConfig == null) {
@@ -320,7 +330,13 @@ class Dialogs {
     }
     return _show(
       context: context,
-      content: content.copy(options: options, initialIndex: initialIndex),
+      content: content.copy(
+        id: "${content.id}_sheet",
+        options: options,
+        initialIndex: initialIndex,
+        titleText: title,
+        bodyText: subtitle,
+      ),
       configBuilder: optionSheetConfig!,
     ).onError((_, __) => null).then((_) {
       return _ is int ? _ : initialIndex;

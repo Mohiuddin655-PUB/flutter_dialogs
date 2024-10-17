@@ -1,3 +1,7 @@
+## 1.0.10+1
+
+* Easier to option dialogs props
+
 ## 1.0.10
 
 * Custom widget supports

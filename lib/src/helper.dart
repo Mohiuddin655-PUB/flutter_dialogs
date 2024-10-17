@@ -115,12 +115,16 @@ extension DialogsHelper on BuildContext {
   Future<int> showOptions<T extends Object?>({
     int initialIndex = 0,
     List<String>? options,
+    String? title,
+    String? subtitle,
     OptionDialogContent content = const OptionDialogContent(),
   }) {
     return Dialogs.i.options(
       this,
       options: options,
       initialIndex: initialIndex,
+      title: title,
+      subtitle: subtitle,
       content: content,
     );
   }
@@ -134,12 +138,16 @@ extension DialogsHelper on BuildContext {
   Future<int> showOptionsSheet<T extends Object?>({
     int initialIndex = 0,
     List<String>? options,
+    String? title,
+    String? subtitle,
     OptionDialogContent content = const OptionDialogContent(),
   }) {
     return Dialogs.i.optionsSheet(
       this,
       options: options,
       initialIndex: initialIndex,
+      title: title,
+      subtitle: subtitle,
       content: content,
     );
   }
