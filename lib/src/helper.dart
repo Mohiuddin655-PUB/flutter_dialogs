@@ -38,7 +38,7 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showEditor(title: "Edit Text", text: "Initial value", hint: "Enter text here");
   /// ```
-  Future<String> showEditor({
+  Future<String?> showEditor({
     String? title,
     String? subtitle,
     String? hint,
@@ -46,6 +46,29 @@ extension DialogsHelper on BuildContext {
     EditableDialogContent content = const EditableDialogContent(),
   }) {
     return Dialogs.i.editor(
+      this,
+      title: title,
+      subtitle: subtitle,
+      text: text,
+      hint: hint,
+      content: content,
+    );
+  }
+
+  /// Shows an editable sheet for user input with the provided title, initial text, and hint.
+  ///
+  /// Example:
+  /// ```dart
+  /// context.showEditorSheet(title: "Edit Text", text: "Initial value", hint: "Enter text here");
+  /// ```
+  Future<String?> showEditorSheet({
+    String? title,
+    String? subtitle,
+    String? hint,
+    String? text,
+    EditableDialogContent content = const EditableDialogContent(),
+  }) {
+    return Dialogs.i.editorSheet(
       this,
       title: title,
       subtitle: subtitle,
@@ -95,6 +118,25 @@ extension DialogsHelper on BuildContext {
     OptionDialogContent content = const OptionDialogContent(),
   }) {
     return Dialogs.i.options(
+      this,
+      options: options,
+      initialIndex: initialIndex,
+      content: content,
+    );
+  }
+
+  /// Shows a Options with the provided some options.
+  ///
+  /// Example:
+  /// ```dart
+  /// context.showOptionsSheet(options: ["A","B","C"], initialIndex: 1);
+  /// ```
+  Future<int> showOptionsSheet<T extends Object?>({
+    int initialIndex = 0,
+    List<String>? options,
+    OptionDialogContent content = const OptionDialogContent(),
+  }) {
+    return Dialogs.i.optionsSheet(
       this,
       options: options,
       initialIndex: initialIndex,

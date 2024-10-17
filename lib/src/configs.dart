@@ -1,40 +1,56 @@
 part of 'dialogs.dart';
 
-typedef AndrossyDialogBuilder<T extends DialogContent> = Widget Function(
+typedef AndrossyDialogContentBuilder<T extends DialogContent> = Widget Function(
   BuildContext context,
   T content,
 );
 
 class DialogContent {
   final String id;
-  final String? title;
-  final String? body;
+  final Widget? title;
+  final String? titleText;
+  final List<String>? titleSpans;
+  final Widget? body;
+  final String? bodyText;
+  final List<String>? bodySpans;
   final Object? args;
 
   const DialogContent({
     this.id = "dialog",
     this.title,
+    this.titleSpans,
+    this.titleText,
     this.body,
+    this.bodySpans,
+    this.bodyText,
     this.args,
   });
 
   DialogContent copy({
     String? id,
-    String? title,
-    String? body,
+    Widget? title,
+    List<String>? titleSpans,
+    String? titleText,
+    List<String>? bodySpans,
+    Widget? body,
+    String? bodyText,
     Object? args,
   }) {
     return DialogContent(
       id: id ?? this.id,
       title: title ?? this.title,
+      titleSpans: titleSpans ?? this.titleSpans,
+      titleText: titleText ?? this.titleText,
       body: body ?? this.body,
+      bodySpans: bodySpans ?? this.bodySpans,
+      bodyText: bodyText ?? this.bodyText,
       args: args ?? this.args,
     );
   }
 }
 
 class DialogConfig<T extends DialogContent> {
-  final AndrossyDialogBuilder<T> builder;
+  final AndrossyDialogContentBuilder<T> builder;
 
   // EXTRA
   final bool useRootNavigator;
@@ -58,6 +74,19 @@ class DialogConfig<T extends DialogContent> {
   final AndrossyDialogPosition position;
   final AndrossyDialogTransitionBuilder? transitionBuilder;
 
+  // BOTTOM SHEET PROPERTY
+  final bool useModalBottomSheet;
+  final bool enableDrag;
+  final bool showDragHandle;
+  final bool isScrollControlled;
+  final AnimationStyle? sheetAnimationStyle;
+  final AnimationController? transitionAnimationController;
+  final double scrollControlDisabledMaxHeightRatio;
+  final ShapeBorder? shape;
+  final double? elevation;
+  final Color? backgroundColor;
+  final BoxConstraints? constraints;
+
   const DialogConfig({
     required this.builder,
     // ROUTE PROPERTIES
@@ -80,6 +109,18 @@ class DialogConfig<T extends DialogContent> {
     this.reverseDuration,
     this.position = AndrossyDialogPosition.center,
     this.transitionBuilder,
+    // BOTTOM SHEET PROPERTY
+    this.useModalBottomSheet = false,
+    this.enableDrag = false,
+    this.showDragHandle = false,
+    this.isScrollControlled = false,
+    this.sheetAnimationStyle,
+    this.transitionAnimationController,
+    this.scrollControlDisabledMaxHeightRatio = 9.0 / 16.0,
+    this.shape,
+    this.elevation,
+    this.backgroundColor,
+    this.constraints,
   });
 }
 
@@ -94,7 +135,11 @@ class AlertDialogContent extends DialogContent {
   const AlertDialogContent({
     super.id = "alert",
     super.title,
+    super.titleSpans,
+    super.titleText,
     super.body,
+    super.bodySpans,
+    super.bodyText,
     super.args,
     this.positiveButtonText,
     this.positiveButtonTextStyle,
@@ -107,8 +152,12 @@ class AlertDialogContent extends DialogContent {
   @override
   AlertDialogContent copy({
     String? id,
-    String? title,
-    String? body,
+    Widget? title,
+    List<String>? titleSpans,
+    String? titleText,
+    List<String>? bodySpans,
+    Widget? body,
+    String? bodyText,
     Object? args,
     String? positiveButtonText,
     TextStyle? positiveButtonTextStyle,
@@ -120,7 +169,11 @@ class AlertDialogContent extends DialogContent {
     return AlertDialogContent(
       id: id ?? this.id,
       title: title ?? this.title,
+      titleSpans: titleSpans ?? this.titleSpans,
+      titleText: titleText ?? this.titleText,
       body: body ?? this.body,
+      bodySpans: bodySpans ?? this.bodySpans,
+      bodyText: bodyText ?? this.bodyText,
       args: args ?? this.args,
       positiveButtonText: positiveButtonText ?? this.positiveButtonText,
       positiveButtonTextStyle:
@@ -162,21 +215,33 @@ class LoadingDialogContent extends DialogContent {
   const LoadingDialogContent({
     super.id = "loading",
     super.title,
+    super.titleSpans,
+    super.titleText,
     super.body,
+    super.bodySpans,
+    super.bodyText,
     super.args,
   });
 
   @override
   LoadingDialogContent copy({
     String? id,
-    String? title,
-    String? body,
+    Widget? title,
+    List<String>? titleSpans,
+    String? titleText,
+    List<String>? bodySpans,
+    Widget? body,
+    String? bodyText,
     Object? args,
   }) {
     return LoadingDialogContent(
       id: id ?? this.id,
       title: title ?? this.title,
+      titleSpans: titleSpans ?? this.titleSpans,
+      titleText: titleText ?? this.titleText,
       body: body ?? this.body,
+      bodySpans: bodySpans ?? this.bodySpans,
+      bodyText: bodyText ?? this.bodyText,
       args: args ?? this.args,
     );
   }
@@ -210,21 +275,33 @@ class MessageDialogContent extends DialogContent {
   const MessageDialogContent({
     super.id = "message",
     super.title,
-    super.args,
+    super.titleSpans,
+    super.titleText,
     super.body,
+    super.bodySpans,
+    super.bodyText,
+    super.args,
   });
 
   @override
   MessageDialogContent copy({
     String? id,
-    String? title,
-    String? body,
+    Widget? title,
+    List<String>? titleSpans,
+    String? titleText,
+    List<String>? bodySpans,
+    Widget? body,
+    String? bodyText,
     Object? args,
   }) {
     return MessageDialogContent(
       id: id ?? this.id,
       title: title ?? this.title,
+      titleSpans: titleSpans ?? this.titleSpans,
+      titleText: titleText ?? this.titleText,
       body: body ?? this.body,
+      bodySpans: bodySpans ?? this.bodySpans,
+      bodyText: bodyText ?? this.bodyText,
       args: args ?? this.args,
     );
   }
@@ -258,32 +335,72 @@ class MessageDialogConfig extends DialogConfig<MessageDialogContent> {
 class EditableDialogContent extends DialogContent {
   final String? text;
   final String? hint;
+  final TextInputType? inputType;
+  final TextInputAction? actionType;
+  final TextAlign? textAlign;
+  final int? maxLines;
+  final int? minLines;
+  final int? maxCharacters;
+  final int? minCharacters;
 
   const EditableDialogContent({
     super.id = "editable",
     super.title,
+    super.titleSpans,
+    super.titleText,
     super.body,
+    super.bodySpans,
+    super.bodyText,
     super.args,
     this.text,
     this.hint,
+    this.inputType,
+    this.actionType,
+    this.textAlign,
+    this.maxLines,
+    this.minLines,
+    this.maxCharacters,
+    this.minCharacters,
   });
 
   @override
   EditableDialogContent copy({
     String? id,
-    String? title,
-    String? body,
+    Widget? title,
+    List<String>? titleSpans,
+    String? titleText,
+    List<String>? bodySpans,
+    Widget? body,
+    String? bodyText,
     Object? args,
     String? hint,
     String? text,
+    TextInputType? inputType,
+    TextInputAction? actionType,
+    TextAlign? textAlign,
+    int? maxLines,
+    int? minLines,
+    int? maxCharacters,
+    int? minCharacters,
   }) {
     return EditableDialogContent(
       id: id ?? this.id,
       title: title ?? this.title,
+      titleSpans: titleSpans ?? this.titleSpans,
+      titleText: titleText ?? this.titleText,
       body: body ?? this.body,
+      bodySpans: bodySpans ?? this.bodySpans,
+      bodyText: bodyText ?? this.bodyText,
       args: args ?? this.args,
       hint: hint ?? this.hint,
       text: text ?? this.text,
+      inputType: inputType ?? this.inputType,
+      actionType: actionType ?? this.actionType,
+      textAlign: textAlign ?? this.textAlign,
+      maxLines: maxLines ?? this.maxLines,
+      minLines: minLines ?? this.minLines,
+      maxCharacters: maxCharacters ?? this.maxCharacters,
+      minCharacters: minCharacters ?? this.minCharacters,
     );
   }
 }
@@ -312,6 +429,42 @@ class EditableDialogConfig extends DialogConfig<EditableDialogContent> {
   });
 }
 
+class EditableSheetConfig extends DialogConfig<EditableDialogContent> {
+  const EditableSheetConfig({
+    required super.builder,
+    super.useSafeArea = false,
+    super.useRootNavigator = true,
+    super.routeSettings,
+    super.anchorPoint,
+    super.traversalEdgeBehavior,
+    super.barrierLabel,
+    super.material = true,
+    // DIALOG PROPERTIES
+    super.animated = true,
+    super.barrierDismissible = true,
+    super.barrierColor,
+    super.barrierBlurSigma = 5.0,
+    super.curve,
+    super.reverseCurve,
+    super.duration,
+    super.reverseDuration,
+    super.position = AndrossyDialogPosition.bottom,
+    super.transitionBuilder,
+    // BOTTOM SHEET PROPERTY
+    super.useModalBottomSheet = false,
+    super.enableDrag = false,
+    super.showDragHandle = false,
+    super.isScrollControlled = false,
+    super.sheetAnimationStyle,
+    super.transitionAnimationController,
+    super.scrollControlDisabledMaxHeightRatio = 9.0 / 16.0,
+    super.shape,
+    super.elevation,
+    super.backgroundColor,
+    super.constraints,
+  });
+}
+
 class OptionDialogContent<T extends Object?> extends DialogContent {
   final int initialIndex;
   final List<T> options;
@@ -319,7 +472,11 @@ class OptionDialogContent<T extends Object?> extends DialogContent {
   const OptionDialogContent({
     super.id = "option",
     super.title,
+    super.titleSpans,
+    super.titleText,
     super.body,
+    super.bodySpans,
+    super.bodyText,
     super.args,
     this.initialIndex = 0,
     this.options = const [],
@@ -328,16 +485,24 @@ class OptionDialogContent<T extends Object?> extends DialogContent {
   @override
   OptionDialogContent copy({
     String? id,
-    String? title,
-    String? body,
+    Widget? title,
+    List<String>? titleSpans,
+    String? titleText,
+    List<String>? bodySpans,
+    Widget? body,
+    String? bodyText,
+    Object? args,
     int? initialIndex,
     List<T>? options,
-    Object? args,
   }) {
     return OptionDialogContent(
       id: id ?? this.id,
       title: title ?? this.title,
+      titleSpans: titleSpans ?? this.titleSpans,
+      titleText: titleText ?? this.titleText,
       body: body ?? this.body,
+      bodySpans: bodySpans ?? this.bodySpans,
+      bodyText: bodyText ?? this.bodyText,
       args: args ?? this.args,
       initialIndex: initialIndex ?? this.initialIndex,
       options: options ?? this.options,
@@ -369,25 +534,73 @@ class OptionDialogConfig extends DialogConfig<OptionDialogContent> {
   });
 }
 
+class OptionSheetConfig extends DialogConfig<OptionDialogContent> {
+  const OptionSheetConfig({
+    required super.builder,
+    super.useSafeArea = false,
+    super.useRootNavigator = true,
+    super.routeSettings,
+    super.anchorPoint,
+    super.traversalEdgeBehavior,
+    super.barrierLabel,
+    super.material = true,
+    // DIALOG PROPERTIES
+    super.animated = true,
+    super.barrierDismissible = true,
+    super.barrierColor,
+    super.barrierBlurSigma = 5.0,
+    super.curve,
+    super.reverseCurve,
+    super.duration,
+    super.reverseDuration,
+    super.position = AndrossyDialogPosition.bottom,
+    super.transitionBuilder,
+    // BOTTOM SHEET PROPERTY
+    super.useModalBottomSheet = false,
+    super.enableDrag = false,
+    super.showDragHandle = false,
+    super.isScrollControlled = false,
+    super.sheetAnimationStyle,
+    super.transitionAnimationController,
+    super.scrollControlDisabledMaxHeightRatio = 9.0 / 16.0,
+    super.shape,
+    super.elevation,
+    super.backgroundColor,
+    super.constraints,
+  });
+}
+
 class SnackBarContent extends DialogContent {
   const SnackBarContent({
     super.id = "snack_bar",
     super.title,
-    super.args,
+    super.titleSpans,
+    super.titleText,
     super.body,
+    super.bodySpans,
+    super.bodyText,
+    super.args,
   });
 
   @override
   SnackBarContent copy({
     String? id,
-    String? title,
-    String? body,
+    Widget? title,
+    List<String>? titleSpans,
+    String? titleText,
+    List<String>? bodySpans,
+    Widget? body,
+    String? bodyText,
     Object? args,
   }) {
     return SnackBarContent(
       id: id ?? this.id,
       title: title ?? this.title,
+      titleSpans: titleSpans ?? this.titleSpans,
+      titleText: titleText ?? this.titleText,
       body: body ?? this.body,
+      bodySpans: bodySpans ?? this.bodySpans,
+      bodyText: bodyText ?? this.bodyText,
       args: args ?? this.args,
     );
   }

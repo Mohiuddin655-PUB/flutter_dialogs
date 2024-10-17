@@ -67,6 +67,8 @@ enum AndrossyDialogPosition {
   Duration get reverseDuration => Duration(milliseconds: isCenter ? 150 : 200);
 }
 
+typedef AndrossyDialogBuilder = Widget Function(BuildContext context);
+
 typedef AndrossyDialogTransitionBuilder = Widget Function(
   BuildContext context,
   Animation<double> animation,
@@ -85,7 +87,7 @@ class AndrossyDialog extends StatefulWidget {
   final Curve? reverseCurve;
   final AndrossyDialogPosition position;
   final AndrossyDialogTransitionBuilder? transitionBuilder;
-  final Widget child;
+  final AndrossyDialogBuilder builder;
 
   const AndrossyDialog._({
     super.key,
@@ -100,7 +102,7 @@ class AndrossyDialog extends StatefulWidget {
     this.reverseDuration,
     this.position = AndrossyDialogPosition.bottom,
     this.transitionBuilder,
-    required this.child,
+    required this.builder,
   }) : _animated = animated;
 
   const AndrossyDialog({
@@ -109,14 +111,14 @@ class AndrossyDialog extends StatefulWidget {
     Color? barrierColor,
     double barrierBlurSigma = 5,
     Duration? displayDuration,
-    required Widget child,
+    required AndrossyDialogBuilder builder,
   }) : this._(
           key: key,
           barrierBlurSigma: barrierBlurSigma,
           barrierColor: barrierColor,
           barrierDismissible: barrierDismissible,
           displayDuration: displayDuration,
-          child: child,
+          builder: builder,
         );
 
   const AndrossyDialog.animated({
@@ -131,14 +133,14 @@ class AndrossyDialog extends StatefulWidget {
     Curve? reverseCurve,
     AndrossyDialogPosition position = AndrossyDialogPosition.center,
     AndrossyDialogTransitionBuilder? transitionBuilder,
-    required Widget child,
+    required AndrossyDialogBuilder builder,
   }) : this._(
           key: key,
           animated: true,
           barrierBlurSigma: barrierBlurSigma,
           barrierColor: barrierColor,
           barrierDismissible: barrierDismissible,
-          child: child,
+          builder: builder,
           curve: curve,
           displayDuration: displayDuration,
           duration: duration,
@@ -150,7 +152,7 @@ class AndrossyDialog extends StatefulWidget {
 
   static Future<T?> show<T>({
     required BuildContext context,
-    required Widget content,
+    required AndrossyDialogBuilder builder,
     bool material = true,
     bool animated = true,
     bool barrierDismissible = true,
@@ -169,8 +171,21 @@ class AndrossyDialog extends StatefulWidget {
     AndrossyDialogPosition position = AndrossyDialogPosition.center,
     AndrossyDialogTransitionBuilder? transitionBuilder,
     TraversalEdgeBehavior? traversalEdgeBehavior,
+
+    // BOTTOM SHEET PROPERTY
+    bool useModalBottomSheet = false,
+    bool enableDrag = false,
+    bool showDragHandle = false,
+    bool isScrollControlled = false,
+    AnimationStyle? sheetAnimationStyle,
+    AnimationController? transitionAnimationController,
+    double scrollControlDisabledMaxHeightRatio = 9.0 / 16.0,
+    ShapeBorder? shape,
+    double? elevation,
+    Color? backgroundColor,
+    BoxConstraints? constraints,
   }) {
-    content = AndrossyDialog._(
+    final child = AndrossyDialog._(
       animated: animated,
       displayDuration: displayDuration,
       barrierDismissible: barrierDismissible,
@@ -182,9 +197,34 @@ class AndrossyDialog extends StatefulWidget {
       reverseDuration: reverseDuration,
       position: position,
       transitionBuilder: transitionBuilder,
-      child: content,
+      builder: builder,
     );
 
+    if (useModalBottomSheet) {
+      return showModalBottomSheet(
+        context: context,
+        backgroundColor: backgroundColor ?? Colors.transparent,
+        barrierColor: Colors.transparent,
+        barrierLabel: barrierLabel,
+        constraints: constraints,
+        clipBehavior: Clip.antiAlias,
+        elevation: elevation,
+        enableDrag: enableDrag,
+        isScrollControlled: isScrollControlled,
+        isDismissible: barrierDismissible,
+        showDragHandle: showDragHandle,
+        scrollControlDisabledMaxHeightRatio:
+            scrollControlDisabledMaxHeightRatio,
+        shape: shape,
+        sheetAnimationStyle: sheetAnimationStyle,
+        transitionAnimationController: transitionAnimationController,
+        useRootNavigator: useRootNavigator,
+        useSafeArea: useSafeArea,
+        routeSettings: routeSettings,
+        anchorPoint: anchorPoint,
+        builder: (_) => child,
+      ).onError((_, __) => null).then((v) => v is T ? v : null);
+    }
     if (material) {
       return showAdaptiveDialog(
         context: context,
@@ -196,7 +236,7 @@ class AndrossyDialog extends StatefulWidget {
         routeSettings: routeSettings,
         anchorPoint: anchorPoint,
         traversalEdgeBehavior: traversalEdgeBehavior,
-        builder: (_) => content,
+        builder: (_) => child,
       ).onError((_, __) => null).then((v) => v is T ? v : null);
     }
     return showCupertinoDialog(
@@ -206,7 +246,7 @@ class AndrossyDialog extends StatefulWidget {
       useRootNavigator: useRootNavigator,
       routeSettings: routeSettings,
       anchorPoint: anchorPoint,
-      builder: (_) => content,
+      builder: (_) => child,
     ).onError((_, __) => null).then((v) => v is T ? v : null);
   }
 
@@ -220,17 +260,8 @@ class AndrossyDialog extends StatefulWidget {
 
 class AndrossyDialogState extends State<AndrossyDialog>
     with SingleTickerProviderStateMixin {
-  late final controller = AnimationController(
-    vsync: this,
-    duration: widget.duration ?? widget.position.duration,
-    reverseDuration: widget.reverseDuration ?? widget.position.reverseDuration,
-  );
-
-  late Animation<double> animation = CurvedAnimation(
-    parent: controller,
-    curve: widget.curve ?? widget.position.curve,
-    reverseCurve: widget.reverseCurve,
-  );
+  late AnimationController controller;
+  late Animation<double> animation;
 
   bool get isBarrierAnimationMode => widget._animated;
 
@@ -256,14 +287,60 @@ class AndrossyDialogState extends State<AndrossyDialog>
   void initState() {
     super.initState();
     if (isBarrierAnimationMode) {
+      _init();
       controller.forward();
       controller.addStatusListener(_status);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scopes.add(_Scope(this));
       _childHeight();
-      _startDisplayTimer();
+      _startDragging();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant AndrossyDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget._animated != oldWidget._animated ||
+        widget.duration != oldWidget.duration ||
+        widget.reverseDuration != oldWidget.reverseDuration ||
+        widget.curve != oldWidget.curve ||
+        widget.reverseCurve != oldWidget.reverseCurve ||
+        widget.position.duration != oldWidget.position.duration ||
+        widget.position.reverseDuration != oldWidget.position.reverseDuration ||
+        widget.position.curve != oldWidget.position.curve ||
+        widget.position.reverseCurve != oldWidget.position.reverseCurve) {
+      _init();
+    }
+  }
+
+  void _init() {
+    controller = AnimationController(
+      vsync: this,
+      duration: widget.duration ?? widget.position.duration,
+      reverseDuration:
+          widget.reverseDuration ?? widget.position.reverseDuration,
+    );
+    _defaultAnimation();
+  }
+
+  void _defaultAnimation({
+    Curve? curve,
+    Curve? reverseCurve,
+  }) {
+    animation = CurvedAnimation(
+      parent: controller,
+      curve: curve ?? widget.curve ?? widget.position.curve,
+      reverseCurve:
+          reverseCurve ?? widget.reverseCurve ?? widget.position.reverseCurve,
+    );
+  }
+
+  void _dragAnimation() {
+    _defaultAnimation(
+      curve: Curves.linear,
+      reverseCurve: Curves.linear,
+    );
   }
 
   @override
@@ -277,8 +354,9 @@ class AndrossyDialogState extends State<AndrossyDialog>
     super.dispose();
   }
 
-  void _startDisplayTimer() {
+  void _startDragging() {
     if (isDisposeTimerMode) {
+      setState(_dragAnimation);
       _dismissTimer = Timer(
         widget.displayDuration! + (widget.duration ?? Duration.zero),
         dismiss,
@@ -286,8 +364,9 @@ class AndrossyDialogState extends State<AndrossyDialog>
     }
   }
 
-  void _cancelDisplayTimer() {
+  void _cancelDragging() {
     if (_dismissTimer != null) {
+      setState(_defaultAnimation);
       _dismissTimer?.cancel();
     }
   }
@@ -317,7 +396,7 @@ class AndrossyDialogState extends State<AndrossyDialog>
       key: _childKey,
       color: Colors.transparent,
       type: MaterialType.transparency,
-      child: widget.child,
+      child: widget.builder(context),
     );
 
     if (!position.isCenter) {
@@ -325,8 +404,8 @@ class AndrossyDialogState extends State<AndrossyDialog>
         position: position,
         controller: controller,
         dimension: childDimension,
-        dragStart: _cancelDisplayTimer,
-        dragEnd: _startDisplayTimer,
+        dragStart: _cancelDragging,
+        dragEnd: _startDragging,
         child: child,
       );
     }

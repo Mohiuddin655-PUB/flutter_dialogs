@@ -17,9 +17,11 @@ class Dialogs {
 
   DialogConfigBuilder<AlertDialogConfig>? alertDialogConfig;
   DialogConfigBuilder<EditableDialogConfig>? editableDialogConfig;
+  DialogConfigBuilder<EditableSheetConfig>? editableSheetConfig;
   DialogConfigBuilder<LoadingDialogConfig>? loadingDialogConfig;
   DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig;
   DialogConfigBuilder<OptionDialogConfig>? optionDialogConfig;
+  DialogConfigBuilder<OptionSheetConfig>? optionSheetConfig;
   DialogConfigBuilder<SnackBarConfig>? snackBarConfig;
   DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig;
   DialogConfigBuilder<SnackBarConfig>? infoSnackBarConfig;
@@ -36,9 +38,11 @@ class Dialogs {
   static Dialogs init({
     DialogConfigBuilder<AlertDialogConfig>? alertDialogConfig,
     DialogConfigBuilder<EditableDialogConfig>? editableDialogConfig,
+    DialogConfigBuilder<EditableSheetConfig>? editableSheetConfig,
     DialogConfigBuilder<LoadingDialogConfig>? loadingDialogConfig,
     DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig,
     DialogConfigBuilder<OptionDialogConfig>? optionDialogConfig,
+    DialogConfigBuilder<OptionSheetConfig>? optionSheetConfig,
     DialogConfigBuilder<SnackBarConfig>? snackBarConfig,
     DialogConfigBuilder<SnackBarConfig>? errorSnackBarConfig,
     DialogConfigBuilder<SnackBarConfig>? infoSnackBarConfig,
@@ -48,9 +52,11 @@ class Dialogs {
   }) {
     i.alertDialogConfig = alertDialogConfig ?? i.alertDialogConfig;
     i.editableDialogConfig = editableDialogConfig ?? i.editableDialogConfig;
+    i.editableSheetConfig = editableSheetConfig ?? i.editableSheetConfig;
     i.loadingDialogConfig = loadingDialogConfig ?? i.loadingDialogConfig;
     i.messageDialogConfig = messageDialogConfig ?? i.messageDialogConfig;
     i.optionDialogConfig = optionDialogConfig ?? i.optionDialogConfig;
+    i.optionSheetConfig = optionSheetConfig ?? i.optionSheetConfig;
     i.snackBarConfig = snackBarConfig ?? i.snackBarConfig;
     i.errorSnackBarConfig = errorSnackBarConfig ?? i.errorSnackBarConfig;
     i.infoSnackBarConfig = infoSnackBarConfig ?? i.infoSnackBarConfig;
@@ -86,7 +92,20 @@ class Dialogs {
       reverseDuration: config.reverseDuration,
       position: config.position,
       transitionBuilder: config.transitionBuilder,
-      content: config.builder(context, content),
+      builder: (context) => config.builder(context, content),
+      // BOTTOM SHEET PROPERTY
+      useModalBottomSheet: config.useModalBottomSheet,
+      enableDrag: config.enableDrag,
+      showDragHandle: config.showDragHandle,
+      isScrollControlled: config.isScrollControlled,
+      sheetAnimationStyle: config.sheetAnimationStyle,
+      transitionAnimationController: config.transitionAnimationController,
+      scrollControlDisabledMaxHeightRatio:
+          config.scrollControlDisabledMaxHeightRatio,
+      shape: config.shape,
+      elevation: config.elevation,
+      backgroundColor: config.backgroundColor,
+      constraints: config.constraints,
     );
   }
 
@@ -133,7 +152,7 @@ class Dialogs {
     return _show(
       context: context,
       configBuilder: alertDialogConfig!,
-      content: content.copy(title: title, body: message),
+      content: content.copy(titleText: title, bodyText: message),
     ).onError((_, __) => null).then((_) => _ is bool ? _ : false);
   }
 
@@ -143,7 +162,7 @@ class Dialogs {
   /// ```dart
   /// String result = await Dialogs.i.editor(context, content: EditableDialogInfo(title: "Edit", text: "Initial text", hint: "Enter text"));
   /// ```
-  Future<String> editor(
+  Future<String?> editor(
     BuildContext context, {
     String? title,
     String? subtitle,
@@ -158,12 +177,41 @@ class Dialogs {
       context: context,
       configBuilder: editableDialogConfig!,
       content: content.copy(
-        title: title,
-        body: subtitle,
+        titleText: title,
+        bodyText: subtitle,
         text: text,
         hint: hint,
       ),
-    ).onError((_, __) => null).then((_) => _ is String ? _ : "");
+    ).onError((_, __) => null).then((_) => _ is String ? _ : null);
+  }
+
+  /// Shows an editable sheet for input.
+  ///
+  /// Example:
+  /// ```dart
+  /// String result = await Dialogs.i.editorSheet(context, content: EditableDialogInfo(title: "Edit", text: "Initial text", hint: "Enter text"));
+  /// ```
+  Future<String?> editorSheet(
+    BuildContext context, {
+    String? title,
+    String? subtitle,
+    String? hint,
+    String? text,
+    EditableDialogContent content = const EditableDialogContent(),
+  }) {
+    if (editableSheetConfig == null) {
+      throw UnimplementedError("Editable sheet config not initialized yet!");
+    }
+    return _show(
+      context: context,
+      configBuilder: editableSheetConfig!,
+      content: content.copy(
+        titleText: title,
+        bodyText: subtitle,
+        text: text,
+        hint: hint,
+      ),
+    ).onError((_, __) => null).then((_) => _ is String ? _ : null);
   }
 
   /// Checks if loader mode is active.
@@ -232,7 +280,7 @@ class Dialogs {
       _tags[content.id] = message;
       return _show(
         context: context,
-        content: content.copy(body: message, title: title),
+        content: content.copy(bodyText: message, titleText: title),
         configBuilder: messageDialogConfig!,
       ).onError((_, __) => null).then((_) {
         _tags.remove(content.id);
@@ -261,6 +309,24 @@ class Dialogs {
     });
   }
 
+  Future<int> optionsSheet(
+    BuildContext context, {
+    int initialIndex = 0,
+    List<String>? options,
+    OptionDialogContent content = const OptionDialogContent(),
+  }) {
+    if (optionSheetConfig == null) {
+      throw UnimplementedError("Option sheet config not initialized yet!");
+    }
+    return _show(
+      context: context,
+      content: content.copy(options: options, initialIndex: initialIndex),
+      configBuilder: optionSheetConfig!,
+    ).onError((_, __) => null).then((_) {
+      return _ is int ? _ : initialIndex;
+    });
+  }
+
   /// Private function to show a custom SnackBar.
   Future<bool> _snackBar(
     BuildContext context,
@@ -276,8 +342,8 @@ class Dialogs {
       );
     }
     final oldMessage = _tags[content.id];
-    if (content.body != oldMessage) {
-      _tags[content.id] = content.body;
+    if (content.bodyText != oldMessage) {
+      _tags[content.id] = content.bodyText;
       return _show(
         context: context,
         content: content,
@@ -305,7 +371,7 @@ class Dialogs {
   }) {
     return _snackBar(
       context,
-      content.copy(title: title, body: message),
+      content.copy(titleText: title, bodyText: message),
       snackBarConfig,
     );
   }
@@ -326,8 +392,8 @@ class Dialogs {
       context,
       content.copy(
         id: content.id == "snack_bar" ? "error_snack_bar" : null,
-        title: title,
-        body: message,
+        titleText: title,
+        bodyText: message,
       ),
       errorSnackBarConfig,
     );
@@ -349,8 +415,8 @@ class Dialogs {
       context,
       content.copy(
         id: content.id == "snack_bar" ? "info_snack_bar" : null,
-        title: title,
-        body: message,
+        titleText: title,
+        bodyText: message,
       ),
       infoSnackBarConfig,
     );
@@ -372,8 +438,8 @@ class Dialogs {
       context,
       content.copy(
         id: content.id == "snack_bar" ? "waiting_snack_bar" : null,
-        title: title,
-        body: message,
+        titleText: title,
+        bodyText: message,
       ),
       waitingSnackBarConfig,
     );
@@ -395,8 +461,8 @@ class Dialogs {
       context,
       content.copy(
         id: content.id == "snack_bar" ? "warning_snack_bar" : null,
-        title: title,
-        body: message,
+        titleText: title,
+        bodyText: message,
       ),
       warningSnackBarConfig,
     );

@@ -13,7 +13,7 @@ void main() {
               borderRadius: BorderRadius.circular(24),
               color: Colors.white,
             ),
-            child: Text(content.title ?? "Alert dialog"),
+            child: Text(content.titleText ?? "Alert dialog"),
           );
         },
       );
@@ -104,7 +104,7 @@ class DemoMessage extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             color: Colors.white,
           ),
-          child: Center(child: Text(content.title ?? "Message")),
+          child: Center(child: Text(content.titleText ?? "Message")),
         ),
       ],
     );
@@ -133,7 +133,7 @@ class DemoSnackBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             color: Colors.white,
           ),
-          child: Center(child: Text(content.title ?? "Error snack bar")),
+          child: Center(child: Text(content.titleText ?? "Error snack bar")),
         ),
       ],
     );
@@ -179,13 +179,13 @@ class MyHomePage extends StatelessWidget {
                     onPressed: () {
                       context.dismiss();
                     },
-                    child: Text("Close"),
+                    child: const Text("Close"),
                   ),
                 );
                 AndrossyDialog.show(
                   context: context,
                   position: AndrossyDialogPosition.center,
-                  content: child,
+                  builder: (context) => child,
                 );
               },
               child: const Text("Show Custom Dialog"),
