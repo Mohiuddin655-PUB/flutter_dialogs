@@ -22,12 +22,16 @@ extension DialogsHelper on BuildContext {
   Future<bool> showAlert({
     String? title,
     String? message,
+    String? positiveButtonText,
+    String? negativeButtonText,
     AlertDialogContent content = const AlertDialogContent(),
   }) {
     return Dialogs.i.alert(
       this,
       title: title,
       message: message,
+      positiveButtonText: positiveButtonText,
+      negativeButtonText: negativeButtonText,
       content: content,
     );
   }

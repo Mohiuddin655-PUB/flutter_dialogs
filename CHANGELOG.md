@@ -1,3 +1,7 @@
+## 1.0.10+2
+
+* Default value support
+
 ## 1.0.10+1
 
 * Easier to option dialogs props

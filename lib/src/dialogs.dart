@@ -144,6 +144,8 @@ class Dialogs {
     BuildContext context, {
     String? title,
     String? message,
+    String? positiveButtonText,
+    String? negativeButtonText,
     AlertDialogContent content = const AlertDialogContent(),
   }) {
     if (alertDialogConfig == null) {
@@ -152,8 +154,13 @@ class Dialogs {
     return _show(
       context: context,
       configBuilder: alertDialogConfig!,
-      content: content.copy(titleText: title, bodyText: message),
-    ).onError((_, __) => null).then((_) => _ is bool ? _ : false);
+      content: content.copy(
+        titleText: title,
+        bodyText: message,
+        positiveButtonText: positiveButtonText,
+        negativeButtonText: negativeButtonText,
+      ),
+    ).onError((_, __) => null).then((value) => value is bool ? value : false);
   }
 
   /// Shows an editable dialog for input.
@@ -182,7 +189,7 @@ class Dialogs {
         text: text,
         hint: hint,
       ),
-    ).onError((_, __) => null).then((_) => _ is String ? _ : null);
+    ).onError((_, __) => text).then((value) => value is String ? value : text);
   }
 
   /// Shows an editable sheet for input.
@@ -212,7 +219,7 @@ class Dialogs {
         text: text,
         hint: hint,
       ),
-    ).onError((_, __) => null).then((_) => _ is String ? _ : null);
+    ).onError((_, __) => text).then((value) => value is String ? value : text);
   }
 
   /// Checks if loader mode is active.
@@ -283,9 +290,9 @@ class Dialogs {
         context: context,
         content: content.copy(bodyText: message, titleText: title),
         configBuilder: messageDialogConfig!,
-      ).onError((_, __) => null).then((_) {
+      ).onError((_, __) => null).then((value) {
         _tags.remove(content.id);
-        return _ is bool ? _ : false;
+        return value is bool ? value : false;
       });
     } else {
       return Future.value(false);
@@ -312,8 +319,8 @@ class Dialogs {
         bodyText: subtitle,
       ),
       configBuilder: optionDialogConfig!,
-    ).onError((_, __) => null).then((_) {
-      return _ is int ? _ : initialIndex;
+    ).onError((_, __) => initialIndex).then((value) {
+      return value is int ? value : initialIndex;
     });
   }
 
@@ -338,8 +345,8 @@ class Dialogs {
         bodyText: subtitle,
       ),
       configBuilder: optionSheetConfig!,
-    ).onError((_, __) => null).then((_) {
-      return _ is int ? _ : initialIndex;
+    ).onError((_, __) => initialIndex).then((value) {
+      return value is int ? value : initialIndex;
     });
   }
 
@@ -364,9 +371,9 @@ class Dialogs {
         context: context,
         content: content,
         configBuilder: configBuilder,
-      ).onError((_, __) => null).then((_) {
+      ).onError((_, __) => null).then((value) {
         _tags.remove(content.id);
-        return _ is bool ? _ : false;
+        return value is bool ? value : false;
       });
     } else {
       return Future.value(false);
