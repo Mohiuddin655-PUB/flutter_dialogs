@@ -1,3 +1,9 @@
+## 1.0.11
+
+* Improve dialogs
+* Loading bug fixed
+* Add Toast overlay
+
 ## 1.0.10+2
 
 * Default value support

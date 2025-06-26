@@ -258,12 +258,7 @@ class Dialogs {
         return value is bool ? value : false;
       });
     } else {
-      if (isLoadingMode(content.id)) {
-        if (Navigator.canPop(context)) {
-          _tags.remove(content.id);
-          Navigator.pop(context);
-        }
-      }
+      if (isLoadingMode(content.id)) dismiss(true);
       return Future.value(false);
     }
   }

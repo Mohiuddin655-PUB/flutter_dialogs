@@ -82,6 +82,66 @@ extension DialogsHelper on BuildContext {
     );
   }
 
+  /// Displays a custom toast-like overlay message.
+  ///
+  /// This method inserts a temporary overlay entry into the current [Overlay]
+  /// to display a toast widget with a given message.
+  ///
+  /// The toast is automatically removed after the specified [duration].
+  /// You can also control its position using [alignment] and optionally pass
+  /// extra [args] to customize the appearance or behavior.
+  ///
+  /// ### Use cases:
+  ///
+  /// ```dart
+  /// // Show a default toast
+  /// Toast.show('This is a toast message');
+  ///
+  /// ```dart
+  /// // Show a default toast
+  /// context.showToast('This is a toast message');
+  ///
+  /// // Show a toast with custom duration and alignment
+  /// Toast.show(
+  ///   'Bottom Toast',
+  ///   duration: Duration(seconds: 3),
+  ///   alignment: Alignment.bottomCenter,
+  /// );
+  ///
+  /// // Show a toast using a specific BuildContext (e.g., inside a Navigator)
+  /// Toast.show(
+  ///   'Toast from nested context',
+  ///   context: nestedContext,
+  /// );
+  /// ```
+  ///
+  /// - The toast relies on an existing `Overlay` widget in the widget tree.
+  /// - If no [context] is provided, it falls back to a globally available `Toast.context`.
+  /// - If no [duration] is provided, it uses a default internal value.
+  /// - If no [alignment] is provided, it uses a default internal alignment.
+  ///
+  /// [msg]      The text to be displayed in the toast.
+  /// [context]  Optional context used to find the overlay.
+  /// [duration] Duration before the toast disappears (defaults to internal setting).
+  /// [alignment] Position on screen for toast display (defaults to internal setting).
+  /// [args]     Optional arguments passed to the builder function for further customization.
+  void showToast(
+    String msg, {
+    Duration? duration,
+    Alignment? alignment,
+    Object? args,
+    Widget? custom,
+  }) {
+    return Toast.show(
+      msg,
+      context: this,
+      alignment: alignment,
+      args: args,
+      duration: duration,
+      custom: custom,
+    );
+  }
+
   /// Shows or hides a loader dialog with an optional loading status.
   ///
   /// Example:

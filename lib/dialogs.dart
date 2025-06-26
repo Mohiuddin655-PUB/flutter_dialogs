@@ -7,3 +7,4 @@ export 'src/global.dart';
 export 'src/helper.dart';
 export 'src/snack_bars/fancy.dart';
 export 'src/snack_bars/overlay.dart';
+export 'src/toast.dart';

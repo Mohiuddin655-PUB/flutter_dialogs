@@ -385,7 +385,9 @@ class AndrossyDialogState extends State<AndrossyDialog>
       _result = result;
       controller.reverse();
     } else {
-      Navigator.pop(context, result);
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context, result);
+      }
     }
   }
 
