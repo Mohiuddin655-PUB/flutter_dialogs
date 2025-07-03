@@ -1,3 +1,7 @@
+## 1.0.12
+
+* Improve dialogs dismiss and loading status
+
 ## 1.0.11
 
 * Improve dialogs

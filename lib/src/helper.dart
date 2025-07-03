@@ -4,6 +4,8 @@ import '../dialogs.dart';
 
 /// Extension on BuildContext to simplify showing dialogs using the Dialogs class.
 extension DialogsHelper on BuildContext {
+  bool isDialogActive(String id) => Dialogs.i.isLoadingMode(id);
+
   Future<T?> show<T>(
     String name, {
     DialogContent content = const DialogContent(id: "custom"),
@@ -11,7 +13,9 @@ extension DialogsHelper on BuildContext {
     return Dialogs.i.show(this, name, content: content);
   }
 
-  void dismiss([Object? result]) => Dialogs.i.dismiss(result);
+  void dismiss({String? id, Object? result}) {
+    Dialogs.i.dismiss(id: id, result: result);
+  }
 
   /// Shows an alert dialog with the provided title and message.
   ///

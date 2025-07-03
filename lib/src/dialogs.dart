@@ -109,7 +109,10 @@ class Dialogs {
     );
   }
 
-  void dismiss([Object? result]) {
+  void dismiss({String? id, Object? result}) {
+    if (id != null) {
+      _tags.remove(id);
+    }
     AndrossyDialog.dismiss(result);
   }
 
@@ -258,7 +261,9 @@ class Dialogs {
         return value is bool ? value : false;
       });
     } else {
-      if (isLoadingMode(content.id)) dismiss(true);
+      if (isLoadingMode(content.id)) {
+        dismiss(id: content.id, result: true);
+      }
       return Future.value(false);
     }
   }
