@@ -75,10 +75,12 @@ class Toast {
   Widget _build(BuildContext context, String msg, Object? args) {
     if (_builder != null) return _builder!(context, msg, args);
     return Container(
+      constraints: BoxConstraints(maxWidth: 400),
       padding: const EdgeInsets.symmetric(
         vertical: 12,
         horizontal: 20,
       ),
+      margin: EdgeInsets.symmetric(horizontal: 50),
       decoration: BoxDecoration(
         color: _darkMode ? Colors.white70 : Colors.black87,
         borderRadius: BorderRadius.circular(25),

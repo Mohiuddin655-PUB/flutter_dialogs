@@ -109,11 +109,8 @@ class Dialogs {
     );
   }
 
-  void dismiss({String? id, Object? result}) {
-    if (id != null) {
-      _tags.remove(id);
-    }
-    AndrossyDialog.dismiss(result);
+  Future<void> dismiss({bool? force, Object? result}) {
+    return AndrossyDialog.dismiss(result: result, force: force);
   }
 
   Future<T?> show<T>(
@@ -240,16 +237,17 @@ class Dialogs {
   /// bool showLoader = true; // Set to false to hide loader
   /// await Dialogs.i.loader(context, status: showLoader);
   /// ```
-  Future<bool> loader(
+  Future<void> loader(
     BuildContext context, {
     bool status = true,
+    bool? force,
     LoadingDialogContent content = const LoadingDialogContent(),
-  }) {
+  }) async {
     if (loadingDialogConfig == null) {
       throw UnimplementedError("Loading dialog config not initialized yet!");
     }
-    if (isLoadingMode(content.id) && status) return Future.value(false);
-    if (!isLoadingMode(content.id) && !status) return Future.value(false);
+    if (isLoadingMode(content.id) && status) return;
+    if (!isLoadingMode(content.id) && !status) return;
     if (status) {
       _tags[content.id] = true;
       return _show(
@@ -258,13 +256,9 @@ class Dialogs {
         configBuilder: loadingDialogConfig!,
       ).onError((_, __) => null).then((value) {
         _tags.remove(content.id);
-        return value is bool ? value : false;
       });
     } else {
-      if (isLoadingMode(content.id)) {
-        dismiss(id: content.id, result: true);
-      }
-      return Future.value(false);
+      await dismiss(force: force, result: true);
     }
   }
 

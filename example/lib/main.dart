@@ -100,6 +100,24 @@ void main() {
         },
       );
     },
+    loadingDialogConfig: (context) {
+      return LoadingDialogConfig(
+        barrierDismissible: false,
+        animated: true,
+        duration: Duration(seconds: 2),
+        builder: (context, content) {
+          return Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        },
+      );
+    },
     configs: {
       "custom": (context) {
         return DialogConfig(
@@ -250,8 +268,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 context.showLoader();
+                await Future.delayed(Duration(seconds: 5));
+                context.hideLoader();
               },
               child: const Text("Show Loading Dialog"),
             ),

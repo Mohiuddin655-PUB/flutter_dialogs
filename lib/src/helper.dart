@@ -13,8 +13,8 @@ extension DialogsHelper on BuildContext {
     return Dialogs.i.show(this, name, content: content);
   }
 
-  void dismiss({String? id, Object? result}) {
-    Dialogs.i.dismiss(id: id, result: result);
+  Future<void> dismiss({bool? force, Object? result}) {
+    return Dialogs.i.dismiss(force: force, result: result);
   }
 
   /// Shows an alert dialog with the provided title and message.
@@ -151,13 +151,21 @@ extension DialogsHelper on BuildContext {
   /// Example:
   /// ```dart
   /// context.showLoader(); // Show loader
-  /// context.showLoader(false); // Hide loader
   /// ```
-  Future<bool> showLoader([
-    bool status = true,
+  Future<void> showLoader([
     LoadingDialogContent content = const LoadingDialogContent(),
   ]) {
-    return Dialogs.i.loader(this, status: status, content: content);
+    return Dialogs.i.loader(this, status: true, content: content);
+  }
+
+  /// Shows or hides a loader dialog with an optional loading status.
+  ///
+  /// Example:
+  /// ```dart
+  /// context.hideLoader(false); // Hide loader
+  /// ```
+  Future<void> hideLoader() {
+    return Dialogs.i.loader(this, status: false);
   }
 
   /// Shows a message dialog with the provided message and optional title.

@@ -1,3 +1,7 @@
+## 1.0.13
+
+* Improve dialogs quick dismiss
+
 ## 1.0.12
 
 * Improve dialogs dismiss and loading status

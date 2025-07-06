@@ -88,6 +88,7 @@ class AndrossyDialog extends StatefulWidget {
   final AndrossyDialogPosition position;
   final AndrossyDialogTransitionBuilder? transitionBuilder;
   final AndrossyDialogBuilder builder;
+  final ValueChanged<Object?>? onDismiss;
 
   const AndrossyDialog._({
     super.key,
@@ -103,6 +104,7 @@ class AndrossyDialog extends StatefulWidget {
     this.position = AndrossyDialogPosition.bottom,
     this.transitionBuilder,
     required this.builder,
+    this.onDismiss,
   }) : _animated = animated;
 
   const AndrossyDialog({
@@ -111,6 +113,7 @@ class AndrossyDialog extends StatefulWidget {
     Color? barrierColor,
     double barrierBlurSigma = 5,
     Duration? displayDuration,
+    ValueChanged<Object?>? onDismiss,
     required AndrossyDialogBuilder builder,
   }) : this._(
           key: key,
@@ -119,6 +122,7 @@ class AndrossyDialog extends StatefulWidget {
           barrierDismissible: barrierDismissible,
           displayDuration: displayDuration,
           builder: builder,
+          onDismiss: onDismiss,
         );
 
   const AndrossyDialog.animated({
@@ -131,6 +135,7 @@ class AndrossyDialog extends StatefulWidget {
     Duration? reverseDuration,
     Curve? curve,
     Curve? reverseCurve,
+    ValueChanged<Object?>? onDismiss,
     AndrossyDialogPosition position = AndrossyDialogPosition.center,
     AndrossyDialogTransitionBuilder? transitionBuilder,
     required AndrossyDialogBuilder builder,
@@ -148,6 +153,7 @@ class AndrossyDialog extends StatefulWidget {
           reverseCurve: reverseCurve,
           reverseDuration: reverseDuration,
           transitionBuilder: transitionBuilder,
+          onDismiss: onDismiss,
         );
 
   static Future<T?> show<T>({
@@ -184,6 +190,7 @@ class AndrossyDialog extends StatefulWidget {
     double? elevation,
     Color? backgroundColor,
     BoxConstraints? constraints,
+    ValueChanged<Object?>? onDismiss,
   }) {
     final child = AndrossyDialog._(
       animated: animated,
@@ -198,6 +205,7 @@ class AndrossyDialog extends StatefulWidget {
       position: position,
       transitionBuilder: transitionBuilder,
       builder: builder,
+      onDismiss: onDismiss,
     );
 
     if (useModalBottomSheet) {
@@ -250,8 +258,20 @@ class AndrossyDialog extends StatefulWidget {
     ).onError((_, __) => null).then((v) => v is T ? v : null);
   }
 
-  static void dismiss([Object? result]) {
-    _scopes.lastOrNull?.state.dismiss(result);
+  static Future<void> dismiss({
+    bool? force,
+    Object? result,
+  }) async {
+    var scope = _scopes.lastOrNull;
+    if (scope == null) {
+      await Future.delayed(Duration(milliseconds: 50));
+      scope = _scopes.lastOrNull;
+    }
+    if (scope == null) return;
+    await scope.state.dismiss(
+      result: result,
+      force: force ?? scope.state.controller.isAnimating,
+    );
   }
 
   @override
@@ -289,7 +309,6 @@ class AndrossyDialogState extends State<AndrossyDialog>
     if (isBarrierAnimationMode) {
       _init();
       controller.forward();
-      controller.addStatusListener(_status);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scopes.add(_Scope(this));
@@ -346,7 +365,6 @@ class AndrossyDialogState extends State<AndrossyDialog>
   @override
   void dispose() {
     if (isBarrierAnimationMode) {
-      controller.removeStatusListener(_status);
       _dismissTimer?.cancel();
       controller.dispose();
     }
@@ -371,24 +389,24 @@ class AndrossyDialogState extends State<AndrossyDialog>
     }
   }
 
-  void _status(AnimationStatus status) {
-    if (status.isDismissed) {
-      Navigator.pop(context, _result);
+  void _dismiss(Object? result) {
+    if (widget.onDismiss != null) {
+      widget.onDismiss!(result);
+    } else if (Navigator.canPop(context)) {
+      Navigator.pop(context, result);
     }
   }
 
-  Object? _result;
-
-  void dismiss([Object? result]) {
+  Future<void> dismiss({Object? result, bool force = false}) async {
     if (!mounted) return;
     if (isBarrierAnimationMode) {
-      _result = result;
-      controller.reverse();
-    } else {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context, result);
+      if (!force) {
+        await controller.reverse();
+      } else {
+        controller.stop();
       }
     }
+    _dismiss(result);
   }
 
   Widget _child(BuildContext context) {
