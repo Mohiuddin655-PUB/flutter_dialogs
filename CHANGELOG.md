@@ -1,3 +1,7 @@
+## 1.0.13+1
+
+* Add Loader overlay
+
 ## 1.0.13
 
 * Improve dialogs quick dismiss

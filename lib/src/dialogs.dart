@@ -18,7 +18,6 @@ class Dialogs {
   DialogConfigBuilder<AlertDialogConfig>? alertDialogConfig;
   DialogConfigBuilder<EditableDialogConfig>? editableDialogConfig;
   DialogConfigBuilder<EditableSheetConfig>? editableSheetConfig;
-  DialogConfigBuilder<LoadingDialogConfig>? loadingDialogConfig;
   DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig;
   DialogConfigBuilder<OptionDialogConfig>? optionDialogConfig;
   DialogConfigBuilder<OptionSheetConfig>? optionSheetConfig;
@@ -39,7 +38,6 @@ class Dialogs {
     DialogConfigBuilder<AlertDialogConfig>? alertDialogConfig,
     DialogConfigBuilder<EditableDialogConfig>? editableDialogConfig,
     DialogConfigBuilder<EditableSheetConfig>? editableSheetConfig,
-    DialogConfigBuilder<LoadingDialogConfig>? loadingDialogConfig,
     DialogConfigBuilder<MessageDialogConfig>? messageDialogConfig,
     DialogConfigBuilder<OptionDialogConfig>? optionDialogConfig,
     DialogConfigBuilder<OptionSheetConfig>? optionSheetConfig,
@@ -53,7 +51,6 @@ class Dialogs {
     i.alertDialogConfig = alertDialogConfig ?? i.alertDialogConfig;
     i.editableDialogConfig = editableDialogConfig ?? i.editableDialogConfig;
     i.editableSheetConfig = editableSheetConfig ?? i.editableSheetConfig;
-    i.loadingDialogConfig = loadingDialogConfig ?? i.loadingDialogConfig;
     i.messageDialogConfig = messageDialogConfig ?? i.messageDialogConfig;
     i.optionDialogConfig = optionDialogConfig ?? i.optionDialogConfig;
     i.optionSheetConfig = optionSheetConfig ?? i.optionSheetConfig;
@@ -220,46 +217,6 @@ class Dialogs {
         hint: hint,
       ),
     ).onError((_, __) => text).then((value) => value is String ? value : text);
-  }
-
-  /// Checks if loader mode is active.
-  ///
-  /// Example:
-  /// ```dart
-  /// bool isLoading = Dialogs.i.isLoaderMode;
-  /// ```
-  bool isLoadingMode(String id) => _tags[id] ?? false;
-
-  /// Shows or hides a loader dialog.
-  ///
-  /// Example:
-  /// ```dart
-  /// bool showLoader = true; // Set to false to hide loader
-  /// await Dialogs.i.loader(context, status: showLoader);
-  /// ```
-  Future<void> loader(
-    BuildContext context, {
-    bool status = true,
-    bool? force,
-    LoadingDialogContent content = const LoadingDialogContent(),
-  }) async {
-    if (loadingDialogConfig == null) {
-      throw UnimplementedError("Loading dialog config not initialized yet!");
-    }
-    if (isLoadingMode(content.id) && status) return;
-    if (!isLoadingMode(content.id) && !status) return;
-    if (status) {
-      _tags[content.id] = true;
-      return _show(
-        context: context,
-        content: content,
-        configBuilder: loadingDialogConfig!,
-      ).onError((_, __) => null).then((value) {
-        _tags.remove(content.id);
-      });
-    } else {
-      await dismiss(force: force, result: true);
-    }
   }
 
   /// Shows a message dialog.

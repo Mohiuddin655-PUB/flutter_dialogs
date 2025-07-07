@@ -77,6 +77,7 @@ void main() {
       ),
     );
   };
+  Loader.init(barrierDismissible: false);
   Dialogs.init(
     alertDialogConfig: (context) {
       return AlertDialogConfig(
@@ -97,24 +98,6 @@ void main() {
       return MessageDialogConfig(
         builder: (context, content) {
           return DemoMessage(content: content);
-        },
-      );
-    },
-    loadingDialogConfig: (context) {
-      return LoadingDialogConfig(
-        barrierDismissible: false,
-        animated: true,
-        duration: Duration(seconds: 2),
-        builder: (context, content) {
-          return Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Center(child: CircularProgressIndicator()),
-          );
         },
       );
     },
@@ -203,13 +186,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Toast.darkMode = Theme.of(context).brightness == Brightness.dark;
+      Loader.darkMode = Theme.of(context).brightness == Brightness.dark;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    Toast.context = context;
+    Loader.context = context;
+    Loader.isShowing;
     return Scaffold(
       body: Container(
         alignment: Alignment.center,

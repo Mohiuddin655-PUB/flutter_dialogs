@@ -4,8 +4,6 @@ import '../dialogs.dart';
 
 /// Extension on BuildContext to simplify showing dialogs using the Dialogs class.
 extension DialogsHelper on BuildContext {
-  bool isDialogActive(String id) => Dialogs.i.isLoadingMode(id);
-
   Future<T?> show<T>(
     String name, {
     DialogContent content = const DialogContent(id: "custom"),
@@ -152,20 +150,43 @@ extension DialogsHelper on BuildContext {
   /// ```dart
   /// context.showLoader(); // Show loader
   /// ```
-  Future<void> showLoader([
-    LoadingDialogContent content = const LoadingDialogContent(),
-  ]) {
-    return Dialogs.i.loader(this, status: true, content: content);
+  void showLoader({
+    Alignment? alignment,
+    bool? barrierDismissible,
+    Color? barrierColor,
+    double? barrierBlurSigma,
+    Curve? curve,
+    Curve? reverseCurve,
+    Duration? duration,
+    Duration? reverseDuration,
+    Object? args,
+    WidgetBuilder? builder,
+    LoaderTransitionBuilder? transitionBuilder,
+  }) {
+    return Loader.show(
+      context: this,
+      alignment: alignment,
+      barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      barrierBlurSigma: barrierBlurSigma,
+      curve: curve,
+      reverseCurve: reverseCurve,
+      duration: duration,
+      reverseDuration: reverseDuration,
+      args: args,
+      builder: builder,
+      transitionBuilder: transitionBuilder,
+    );
   }
 
   /// Shows or hides a loader dialog with an optional loading status.
   ///
   /// Example:
   /// ```dart
-  /// context.hideLoader(false); // Hide loader
+  /// context.hideLoader(); // Hide loader
   /// ```
-  Future<void> hideLoader() {
-    return Dialogs.i.loader(this, status: false);
+  Future<void> hideLoader([bool force = false]) {
+    return Loader.hide(force);
   }
 
   /// Shows a message dialog with the provided message and optional title.

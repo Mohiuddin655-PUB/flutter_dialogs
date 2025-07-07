@@ -72,7 +72,7 @@ typedef AndrossyDialogBuilder = Widget Function(BuildContext context);
 typedef AndrossyDialogTransitionBuilder = Widget Function(
   BuildContext context,
   Animation<double> animation,
-  Widget child,
+  Widget? child,
 );
 
 class AndrossyDialog extends StatefulWidget {

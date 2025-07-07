@@ -211,66 +211,6 @@ class AlertDialogConfig extends DialogConfig<AlertDialogContent> {
   });
 }
 
-class LoadingDialogContent extends DialogContent {
-  const LoadingDialogContent({
-    super.id = "loading",
-    super.title,
-    super.titleSpans,
-    super.titleText,
-    super.body,
-    super.bodySpans,
-    super.bodyText,
-    super.args,
-  });
-
-  @override
-  LoadingDialogContent copy({
-    String? id,
-    Widget? title,
-    List<String>? titleSpans,
-    String? titleText,
-    List<String>? bodySpans,
-    Widget? body,
-    String? bodyText,
-    Object? args,
-  }) {
-    return LoadingDialogContent(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      titleSpans: titleSpans ?? this.titleSpans,
-      titleText: titleText ?? this.titleText,
-      body: body ?? this.body,
-      bodySpans: bodySpans ?? this.bodySpans,
-      bodyText: bodyText ?? this.bodyText,
-      args: args ?? this.args,
-    );
-  }
-}
-
-class LoadingDialogConfig extends DialogConfig<LoadingDialogContent> {
-  const LoadingDialogConfig({
-    required super.builder,
-    super.useSafeArea = false,
-    super.useRootNavigator = true,
-    super.routeSettings,
-    super.anchorPoint,
-    super.traversalEdgeBehavior,
-    super.barrierLabel,
-    super.material = true,
-    // DIALOG PROPERTIES
-    super.animated = true,
-    super.barrierDismissible = true,
-    super.barrierColor,
-    super.barrierBlurSigma = 5.0,
-    super.curve,
-    super.reverseCurve,
-    super.duration,
-    super.reverseDuration,
-    super.position = AndrossyDialogPosition.center,
-    super.transitionBuilder,
-  });
-}
-
 class MessageDialogContent extends DialogContent {
   const MessageDialogContent({
     super.id = "message",
